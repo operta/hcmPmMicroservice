@@ -1,0 +1,127 @@
+entity PmCorrectiveMeasures{
+	startDate LocalDate required
+    endDate LocalDate required
+    measureSuccessRate Double required
+    description String 
+    stateDate LocalDate required
+}
+entity PmCorMeasureStates{
+	code String required
+    name String required
+    description String
+}
+entity PmCorMeasureTypes{
+	code String required
+    name String required
+    description String
+}
+entity PmEmployeesGoals{
+	idEmployeeResponsible Long required
+    idEmployeeSetBy Long required
+    fromDate LocalDate required
+    toDate LocalDate required
+    currentValue Long required
+    targetValue Long required
+    initialValue Long required
+    stateDate LocalDate required
+    goalSetDate LocalDate required
+    description String 
+}
+entity PmEvaluationStates{
+	code String required
+    name String required
+    description String
+}
+entity PmGoalEvalQstCompl{
+	description String 
+}
+entity PmGoalStates{
+	code String required
+    name String required
+}
+entity PmGoalTypes{
+	code String required
+    name String required
+}
+entity PmGoals{
+	code String required
+    name String required
+    description String
+    idEmployeeOwner Long required
+    isActive String required    
+}
+entity PmGoalsEvaluations{
+	evaluationDate LocalDate required
+    idEmployeeEvaluator Long required
+    idEmployeeApproving Long required
+    evaluationPeriodFrom LocalDate required
+    evaluationPeriodTo LocalDate required
+    achievedValue Long required
+    stateDate LocalDate required
+}
+entity PmQuestComplAnswers{
+	dtlCode String 
+    dtlName String 
+    dtlDescription String
+    description String
+    answer String required
+    dateAnswered LocalDate required
+    dtlId String required
+    dtlIdHeader String required
+    dtlMandatory String
+    dtlIdDataType String
+}
+entity PmQuestComplStates{
+	code String required
+    name String required
+    description String
+}
+entity PmQuestCompletions{
+	description String 
+    idEmployeeCompletedBy Long required
+    idEmployeeOrderedBy Long required
+    stateDate LocalDate required
+}
+entity PmQuestQuestions{
+	description String
+    weight Long required
+    idDetail Long required
+}
+entity PmQuestTypes{
+	code String required
+    name String required
+    description String
+}
+entity PmQuestionnaires{
+    idHeader Long required
+}
+entity PmUnitOfMeasures{
+	code String required
+    name String required
+    description String
+}
+
+relationship ManyToOne{
+	PmCorrectiveMeasures{idCmState} to PmCorMeasureStates
+    PmCorrectiveMeasures{idCorrectiveMeasureType} to PmCorMeasureTypes
+    PmCorrectiveMeasures{idGoalEvaluation} to PmGoalsEvaluations
+    PmGoalsEvaluations{idEmployeeGoal} to PmEmployeesGoals
+    PmGoalsEvaluations{idEvaluationState} to PmEvaluationStates
+    PmEmployeesGoals{idUnit} to PmUnitOfMeasures
+    PmEmployeesGoals{idGoalState} to PmGoalStates
+    PmEmployeesGoals{idGoal} to PmGoals
+    PmGoalEvalQstCompl{idQuestionaireCompletion} to PmQuestCompletions
+    PmGoalEvalQstCompl{idGoalEvaluation} to PmGoalsEvaluations
+    PmGoals{idGoalType} to PmGoalTypes
+    PmGoals{idGoal} to PmGoals
+    PmGoalsEvaluations{idEvaluationState} to PmEvaluationStates
+    PmGoalsEvaluations{idEmployeeGoal} to PmEmployeesGoals
+    PmQuestComplAnswers{idQuestionnaireQuestion} to PmQuestQuestions
+    PmQuestComplAnswers{idQuestionnaireCompletion} to PmQuestCompletions
+    PmQuestCompletions{idQuestCompletionState} to PmQuestComplStates
+    PmQuestCompletions{idQuestionnaire} to PmQuestionnaires
+    PmQuestionnaires{idQuestionnaireType} to PmQuestTypes
+}
+
+dto * with mapstruct
+paginate * with pagination
