@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <!--
+        Added the constraints for entity PmQuestCompletions.
+    -->
+    <changeSet id="20180927132854-2" author="jhipster">
+        
+        <addForeignKeyConstraint baseColumnNames="id_quest_completion_state_id"
+                                 baseTableName="dwqdwqewq"
+                                 constraintName="pm_quest_compl_id_quest_comp_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="pm_quest_compl_states"/>
+
+        <addForeignKeyConstraint baseColumnNames="id_questionnaire_id"
+                                 baseTableName="dwqdwqewq"
+                                 constraintName="pm_quest_compl_id_questionna_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="pm_questionnaires"/>
+
+    </changeSet>
+</databaseChangeLog>

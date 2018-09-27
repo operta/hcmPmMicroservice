@@ -5,6 +5,31 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
     <include file="config/liquibase/changelog/00000000000000_initial_schema.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20180927132842_added_entity_PmCorrectiveMeasures.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20180927132843_added_entity_PmCorMeasureStates.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20180927132844_added_entity_PmCorMeasureTypes.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20180927132845_added_entity_PmEmployeesGoals.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20180927132846_added_entity_PmEvaluationStates.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20180927132847_added_entity_PmGoalEvalQstCompl.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20180927132848_added_entity_PmGoalStates.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20180927132849_added_entity_PmGoalTypes.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20180927132850_added_entity_PmGoals.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20180927132851_added_entity_PmGoalsEvaluations.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20180927132852_added_entity_PmQuestComplAnswers.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20180927132853_added_entity_PmQuestComplStates.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20180927132854_added_entity_PmQuestCompletions.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20180927132855_added_entity_PmQuestQuestions.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20180927132856_added_entity_PmQuestTypes.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20180927132857_added_entity_PmQuestionnaires.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20180927132858_added_entity_PmUnitOfMeasures.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
+    <include file="config/liquibase/changelog/20180927132842_added_entity_constraints_PmCorrectiveMeasures.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20180927132845_added_entity_constraints_PmEmployeesGoals.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20180927132847_added_entity_constraints_PmGoalEvalQstCompl.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20180927132850_added_entity_constraints_PmGoals.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20180927132851_added_entity_constraints_PmGoalsEvaluations.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20180927132852_added_entity_constraints_PmQuestComplAnswers.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20180927132854_added_entity_constraints_PmQuestCompletions.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20180927132857_added_entity_constraints_PmQuestionnaires.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
 </databaseChangeLog>

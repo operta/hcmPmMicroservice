@@ -33,10 +33,11 @@ spring:
         livereload:
             enabled: false
     datasource:
-        type: com.zaxxer.hikari.HikariDataSource
-        url: jdbc:oracle:thin:@localhost:1521:xe
-        username: system
-        password: oracle
+        driverClassName: oracle.jdbc.OracleDriver
+        dataSourceClassName: oracle.jdbc.pool.OracleDataSource
+        url: jdbc:oracle:thin:@192.168.1.218:1521/pdb_generic.infostudio.ba
+        username: hcm
+        password: hcm
     jpa:
         database-platform: org.hibernate.dialect.Oracle12cDialect
         database: ORACLE
@@ -115,7 +116,7 @@ jhipster:
     security:
         authentication:
             jwt:
-                secret: f1ce3d3a90383f6896784b96fc9d5c75da9b24fb
+                secret: 2319fb1694dbd1180fa0474a6b2890112243a567
                 # Token is valid 24 hours
                 token-validity-in-seconds: 86400
                 token-validity-in-seconds-for-remember-me: 2592000

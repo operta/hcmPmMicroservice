@@ -31,19 +31,19 @@ public abstract class AbstractAuditingEntity implements Serializable {
     private String createdBy;
 
     @CreatedDate
-    @Column(name = "created_date", nullable = false)
+    @Column(name = "created_at", nullable = false)
     @JsonIgnore
-    private Instant createdDate = Instant.now();
+    private Instant createdAt = Instant.now();
 
     @LastModifiedBy
-    @Column(name = "last_modified_by", length = 50)
+    @Column(name = "updatedBy", length = 50)
     @JsonIgnore
-    private String lastModifiedBy;
+    private String updatedBy;
 
     @LastModifiedDate
-    @Column(name = "last_modified_date")
+    @Column(name = "updated_at")
     @JsonIgnore
-    private Instant lastModifiedDate = Instant.now();
+    private Instant updatedAt = Instant.now();
 
     public String getCreatedBy() {
         return createdBy;
@@ -53,27 +53,27 @@ public abstract class AbstractAuditingEntity implements Serializable {
         this.createdBy = createdBy;
     }
 
-    public Instant getCreatedDate() {
-        return createdDate;
+    public Instant getCreatedAt() {
+        return createdAt;
     }
 
-    public void setCreatedDate(Instant createdDate) {
-        this.createdDate = createdDate;
+    public void setCreatedAt(Instant createdDate) {
+        this.createdAt = createdDate;
     }
 
-    public String getLastModifiedBy() {
-        return lastModifiedBy;
+    public String getUpdatedBy() {
+        return updatedBy;
     }
 
-    public void setLastModifiedBy(String lastModifiedBy) {
-        this.lastModifiedBy = lastModifiedBy;
+    public void setUpdatedBy(String lastModifiedBy) {
+        this.updatedBy = lastModifiedBy;
     }
 
-    public Instant getLastModifiedDate() {
-        return lastModifiedDate;
+    public Instant getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void setLastModifiedDate(Instant lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
+    public void setUpdatedAt(Instant lastModifiedDate) {
+        this.updatedAt = lastModifiedDate;
     }
 }

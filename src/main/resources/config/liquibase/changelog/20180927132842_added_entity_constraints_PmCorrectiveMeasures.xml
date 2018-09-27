@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <!--
+        Added the constraints for entity PmCorrectiveMeasures.
+    -->
+    <changeSet id="20180927132842-2" author="jhipster">
+        
+        <addForeignKeyConstraint baseColumnNames="id_cm_state_id"
+                                 baseTableName="pmcm"
+                                 constraintName="pm_corrective_id_cm_state_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="pm_cor_measure_states"/>
+
+        <addForeignKeyConstraint baseColumnNames="id_corrective_measure_type_id"
+                                 baseTableName="pmcm"
+                                 constraintName="pm_corrective_id_corrective_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="pm_cor_measure_types"/>
+
+        <addForeignKeyConstraint baseColumnNames="id_goal_evaluation_id"
+                                 baseTableName="pmcm"
+                                 constraintName="pm_corrective_id_goal_evalu_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="pm_goals_evaluations"/>
+
+    </changeSet>
+</databaseChangeLog>

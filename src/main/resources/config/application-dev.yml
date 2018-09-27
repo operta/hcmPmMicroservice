@@ -38,10 +38,11 @@ spring:
     jackson:
         serialization.indent_output: true
     datasource:
-        type: com.zaxxer.hikari.HikariDataSource
-        url: jdbc:oracle:thin:@localhost:1521:xe
-        username: system
-        password: oracle
+        driverClassName: oracle.jdbc.OracleDriver
+        dataSourceClassName: oracle.jdbc.pool.OracleDataSource
+        url: jdbc:oracle:thin:@192.168.1.218:1521/pdb_generic.infostudio.ba
+        username: hcm
+        password: hcm
     jpa:
         database-platform: org.hibernate.dialect.Oracle12cDialect
         database: ORACLE

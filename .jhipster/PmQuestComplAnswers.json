@@ -1,0 +1,78 @@
+{
+    "fluentMethods": true,
+    "relationships": [
+        {
+            "relationshipType": "many-to-one",
+            "relationshipName": "idQuestionnaireQuestion",
+            "otherEntityName": "pmQuestQuestions",
+            "otherEntityField": "id"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "relationshipName": "idQuestionnaireCompletion",
+            "otherEntityName": "pmQuestCompletions",
+            "otherEntityField": "id"
+        }
+    ],
+    "fields": [
+        {
+            "fieldName": "dtlCode",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "dtlName",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "dtlDescription",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "description",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "answer",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "dateAnswered",
+            "fieldType": "LocalDate",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "dtlId",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "dtlIdHeader",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "dtlMandatory",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "dtlIdDataType",
+            "fieldType": "String"
+        }
+    ],
+    "changelogDate": "20180927132852",
+    "entityTableName": "pm_quest_compl_answers",
+    "dto": "mapstruct",
+    "pagination": "pagination",
+    "service": "no",
+    "jpaMetamodelFiltering": false,
+    "microserviceName": "hcmPmMicroservice"
+}

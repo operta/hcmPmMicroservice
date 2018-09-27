@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <!--
+        Added the constraints for entity PmGoalEvalQstCompl.
+    -->
+    <changeSet id="20180927132847-2" author="jhipster">
+        
+        <addForeignKeyConstraint baseColumnNames="id_questionaire_completion_id"
+                                 baseTableName="pmevadq"
+                                 constraintName="pm_goal_eval_q_id_questionai_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="pm_quest_completions"/>
+
+        <addForeignKeyConstraint baseColumnNames="id_goal_evaluation_id"
+                                 baseTableName="pmevadq"
+                                 constraintName="pm_goal_eval_q_id_goal_evalu_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="pm_goals_evaluations"/>
+
+    </changeSet>
+</databaseChangeLog>

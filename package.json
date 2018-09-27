@@ -1,7 +1,7 @@
 {
-  "name": "hcm-tr-microservice",
+  "name": "hcm-pm-microservice",
   "version": "0.0.0",
-  "description": "Description for hcmTrMicroservice",
+  "description": "Description for hcmPmMicroservice",
   "private": true,
   "license": "UNLICENSED",
   "cacheDirectories": [

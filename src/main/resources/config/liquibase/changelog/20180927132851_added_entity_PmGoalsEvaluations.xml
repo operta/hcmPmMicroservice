@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <property name="now" value="now()" dbms="h2"/>
+
+    <property name="now" value="sysdate" dbms="oracle"/>
+
+    <property name="floatType" value="float4" dbms="postgresql, h2"/>
+    <property name="floatType" value="float" dbms="mysql, oracle, mssql"/>
+
+    <!--
+        Added the entity PmGoalsEvaluations.
+    -->
+    <changeSet id="20180927132851-1" author="jhipster">
+        <createTable tableName="pwqdqd">
+            <column name="id" type="bigint" autoIncrement="${autoIncrement}">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="evaluation_date" type="date">
+                <constraints nullable="false" />
+            </column>
+
+            <column name="id_employee_evaluator" type="bigint">
+                <constraints nullable="false" />
+            </column>
+
+            <column name="id_employee_approving" type="bigint">
+                <constraints nullable="false" />
+            </column>
+
+            <column name="evaluation_period_from" type="date">
+                <constraints nullable="false" />
+            </column>
+
+            <column name="evaluation_period_to" type="date">
+                <constraints nullable="false" />
+            </column>
+
+            <column name="achieved_value" type="bigint">
+                <constraints nullable="false" />
+            </column>
+
+            <column name="state_date" type="date">
+                <constraints nullable="false" />
+            </column>
+
+            <column name="id_employee_goal_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="id_evaluation_state_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+
+            <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
+        </createTable>
+        
+    </changeSet>
+    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here, do not remove-->
+</databaseChangeLog>

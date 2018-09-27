@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <!--
+        Added the constraints for entity PmEmployeesGoals.
+    -->
+    <changeSet id="20180927132845-2" author="jhipster">
+        
+        <addForeignKeyConstraint baseColumnNames="id_unit_id"
+                                 baseTableName="pmeg"
+                                 constraintName="pm_employees_g_id_unit_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="pm_unit_of_measures"/>
+
+        <addForeignKeyConstraint baseColumnNames="id_goal_state_id"
+                                 baseTableName="pmeg"
+                                 constraintName="pm_employees_g_id_goal_state_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="pm_goal_states"/>
+
+        <addForeignKeyConstraint baseColumnNames="id_goal_id"
+                                 baseTableName="pmeg"
+                                 constraintName="pm_employees_g_id_goal_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="pm_goals"/>
+
+    </changeSet>
+</databaseChangeLog>
