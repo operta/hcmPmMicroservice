@@ -13,6 +13,7 @@ import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,8 +24,7 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * REST controller for managing PmGoals.
@@ -100,9 +100,30 @@ public class PmGoalsResource {
      */
     @GetMapping("/pm-goals")
     @Timed
-    public ResponseEntity<List<PmGoalsDTO>> getAllPmGoals(Pageable pageable) {
+    public ResponseEntity<List<PmGoalsDTO>> getAllPmGoals(@RequestParam(name = "employeeId", required = false)Long employeeId,
+                                                          @RequestParam(name = "goalName", required = false)String goalName,
+                                                          @RequestParam(name = "goalType", required = false)Long goalTypeId,
+                                                          Pageable pageable) {
         log.debug("REST request to get a page of PmGoals");
-        Page<PmGoals> page = pmGoalsRepository.findAll(pageable);
+        Set<PmGoals> allGoals = new HashSet<>(pmGoalsRepository.findAll());
+
+        if(employeeId != null){
+            Set<PmGoals> goalsByEmployeeOwner = new HashSet<>(pmGoalsRepository.findByIdEmployeeOwner(employeeId));
+            allGoals.retainAll(goalsByEmployeeOwner);
+        }
+        if(goalName != null){
+            Set<PmGoals> goalsByName = new HashSet<>(pmGoalsRepository.findByNameContainingIgnoreCase(goalName));
+            allGoals.retainAll(goalsByName);
+        }
+        if(goalTypeId != null){
+            Set<PmGoals> goalsByGoalTypeId = new HashSet<>(pmGoalsRepository.findByIdGoalTypeId(goalTypeId));
+            allGoals.retainAll(goalsByGoalTypeId);
+        }
+        List<PmGoals> allGoalsList = new ArrayList<>(allGoals);
+        int start = pageable.getOffset();
+        int end = (start + pageable.getPageSize() > allGoalsList.size() ? allGoalsList.size() : (start + pageable.getPageSize()));
+
+        Page<PmGoals> page = new PageImpl<>(allGoalsList.subList(start, end), pageable, allGoalsList.size());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/pm-goals");
         return new ResponseEntity<>(pmGoalsMapper.toDto(page.getContent()), headers, HttpStatus.OK);
     }
