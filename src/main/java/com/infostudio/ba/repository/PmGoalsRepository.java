@@ -14,6 +14,7 @@ import java.util.List;
 @SuppressWarnings("unused")
 @Repository
 public interface PmGoalsRepository extends JpaRepository<PmGoals, Long> {
+    PmGoals findByCode(String code);
     List<PmGoals> findByIdEmployeeOwner(Long id);
     List<PmGoals> findByIdGoalTypeId(Long id);
     /*

@@ -12,5 +12,6 @@ import org.springframework.data.jpa.repository.*;
 @SuppressWarnings("unused")
 @Repository
 public interface PmUnitOfMeasuresRepository extends JpaRepository<PmUnitOfMeasures, Long> {
+    PmUnitOfMeasures findByCode(String code);
 
 }

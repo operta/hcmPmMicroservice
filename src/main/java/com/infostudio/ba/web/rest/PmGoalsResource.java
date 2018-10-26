@@ -1,5 +1,7 @@
 package com.infostudio.ba.web.rest;
 
+import org.apache.commons.lang.RandomStringUtils;
+
 import com.codahale.metrics.annotation.Timed;
 import com.infostudio.ba.domain.PmGoals;
 
@@ -60,6 +62,11 @@ public class PmGoalsResource {
         if (pmGoalsDTO.getId() != null) {
             throw new BadRequestAlertException("A new pmGoals cannot already have an ID", ENTITY_NAME, "idexists");
         }
+        String newCode = RandomStringUtils.randomAlphanumeric(7).toUpperCase();
+        while(pmGoalsRepository.findByCode(newCode) != null){
+            newCode = RandomStringUtils.randomAlphanumeric(7).toUpperCase();
+        }
+        pmGoalsDTO.setCode(newCode);
         PmGoals pmGoals = pmGoalsMapper.toEntity(pmGoalsDTO);
         pmGoals = pmGoalsRepository.save(pmGoals);
         PmGoalsDTO result = pmGoalsMapper.toDto(pmGoals);

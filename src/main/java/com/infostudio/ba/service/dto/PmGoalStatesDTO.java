@@ -1,6 +1,5 @@
 package com.infostudio.ba.service.dto;
 
-
 import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.time.Instant;
@@ -13,7 +12,6 @@ public class PmGoalStatesDTO implements Serializable {
 
     private Long id;
 
-    @NotNull
     private String code;
 
     @NotNull

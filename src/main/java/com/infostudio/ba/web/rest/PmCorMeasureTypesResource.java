@@ -1,5 +1,7 @@
 package com.infostudio.ba.web.rest;
 
+import org.apache.commons.lang.RandomStringUtils;
+
 import com.codahale.metrics.annotation.Timed;
 import com.infostudio.ba.domain.PmCorMeasureTypes;
 
@@ -60,6 +62,11 @@ public class PmCorMeasureTypesResource {
         if (pmCorMeasureTypesDTO.getId() != null) {
             throw new BadRequestAlertException("A new pmCorMeasureTypes cannot already have an ID", ENTITY_NAME, "idexists");
         }
+        String newCode = RandomStringUtils.randomAlphanumeric(7).toUpperCase();
+        while(pmCorMeasureTypesRepository.findByCode(newCode) != null){
+            newCode = RandomStringUtils.randomAlphanumeric(7).toUpperCase();
+        }
+        pmCorMeasureTypesDTO.setCode(newCode);
         PmCorMeasureTypes pmCorMeasureTypes = pmCorMeasureTypesMapper.toEntity(pmCorMeasureTypesDTO);
         pmCorMeasureTypes = pmCorMeasureTypesRepository.save(pmCorMeasureTypes);
         PmCorMeasureTypesDTO result = pmCorMeasureTypesMapper.toDto(pmCorMeasureTypes);

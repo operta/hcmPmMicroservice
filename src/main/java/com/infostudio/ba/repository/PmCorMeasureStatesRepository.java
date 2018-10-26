@@ -12,5 +12,6 @@ import org.springframework.data.jpa.repository.*;
 @SuppressWarnings("unused")
 @Repository
 public interface PmCorMeasureStatesRepository extends JpaRepository<PmCorMeasureStates, Long> {
+    PmCorMeasureStates findByCode(String code);
 
 }

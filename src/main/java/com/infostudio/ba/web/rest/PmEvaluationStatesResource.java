@@ -1,5 +1,7 @@
 package com.infostudio.ba.web.rest;
 
+import org.apache.commons.lang.RandomStringUtils;
+
 import com.codahale.metrics.annotation.Timed;
 import com.infostudio.ba.domain.PmEvaluationStates;
 
@@ -60,6 +62,11 @@ public class PmEvaluationStatesResource {
         if (pmEvaluationStatesDTO.getId() != null) {
             throw new BadRequestAlertException("A new pmEvaluationStates cannot already have an ID", ENTITY_NAME, "idexists");
         }
+        String newCode = RandomStringUtils.randomAlphanumeric(7).toUpperCase();
+        while(pmEvaluationStatesRepository.findByCode(newCode) != null){
+            newCode = RandomStringUtils.randomAlphanumeric(7).toUpperCase();
+        }
+        pmEvaluationStatesDTO.setCode(newCode);
         PmEvaluationStates pmEvaluationStates = pmEvaluationStatesMapper.toEntity(pmEvaluationStatesDTO);
         pmEvaluationStates = pmEvaluationStatesRepository.save(pmEvaluationStates);
         PmEvaluationStatesDTO result = pmEvaluationStatesMapper.toDto(pmEvaluationStates);

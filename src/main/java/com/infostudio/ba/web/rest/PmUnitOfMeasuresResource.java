@@ -1,5 +1,8 @@
 package com.infostudio.ba.web.rest;
 
+
+import org.apache.commons.lang.RandomStringUtils;
+
 import com.codahale.metrics.annotation.Timed;
 import com.infostudio.ba.domain.PmUnitOfMeasures;
 
@@ -60,6 +63,11 @@ public class PmUnitOfMeasuresResource {
         if (pmUnitOfMeasuresDTO.getId() != null) {
             throw new BadRequestAlertException("A new pmUnitOfMeasures cannot already have an ID", ENTITY_NAME, "idexists");
         }
+        String newCode = RandomStringUtils.randomAlphanumeric(7).toUpperCase();
+        while(pmUnitOfMeasuresRepository.findByCode(newCode) != null){
+            newCode = RandomStringUtils.randomAlphanumeric(7).toUpperCase();
+        }
+        pmUnitOfMeasuresDTO.setCode(newCode);
         PmUnitOfMeasures pmUnitOfMeasures = pmUnitOfMeasuresMapper.toEntity(pmUnitOfMeasuresDTO);
         pmUnitOfMeasures = pmUnitOfMeasuresRepository.save(pmUnitOfMeasures);
         PmUnitOfMeasuresDTO result = pmUnitOfMeasuresMapper.toDto(pmUnitOfMeasures);

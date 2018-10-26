@@ -1,5 +1,8 @@
 package com.infostudio.ba.web.rest;
 
+
+import org.apache.commons.lang.RandomStringUtils;
+
 import com.codahale.metrics.annotation.Timed;
 import com.infostudio.ba.domain.PmQuestTypes;
 
@@ -60,6 +63,11 @@ public class PmQuestTypesResource {
         if (pmQuestTypesDTO.getId() != null) {
             throw new BadRequestAlertException("A new pmQuestTypes cannot already have an ID", ENTITY_NAME, "idexists");
         }
+        String newCode = RandomStringUtils.randomAlphanumeric(7).toUpperCase();
+        while(pmQuestTypesRepository.findByCode(newCode) != null){
+            newCode = RandomStringUtils.randomAlphanumeric(7).toUpperCase();
+        }
+        pmQuestTypesDTO.setCode(newCode);
         PmQuestTypes pmQuestTypes = pmQuestTypesMapper.toEntity(pmQuestTypesDTO);
         pmQuestTypes = pmQuestTypesRepository.save(pmQuestTypes);
         PmQuestTypesDTO result = pmQuestTypesMapper.toDto(pmQuestTypes);

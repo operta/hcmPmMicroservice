@@ -12,5 +12,6 @@ import org.springframework.data.jpa.repository.*;
 @SuppressWarnings("unused")
 @Repository
 public interface PmQuestComplStatesRepository extends JpaRepository<PmQuestComplStates, Long> {
+    PmQuestComplStates findByCode(String code);
 
 }

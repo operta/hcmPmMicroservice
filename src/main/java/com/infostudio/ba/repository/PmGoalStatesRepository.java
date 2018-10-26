@@ -12,5 +12,6 @@ import org.springframework.data.jpa.repository.*;
 @SuppressWarnings("unused")
 @Repository
 public interface PmGoalStatesRepository extends JpaRepository<PmGoalStates, Long> {
+    PmGoalStates findByCode(String code);
 
 }

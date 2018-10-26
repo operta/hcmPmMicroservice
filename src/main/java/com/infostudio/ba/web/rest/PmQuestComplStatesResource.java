@@ -1,5 +1,7 @@
 package com.infostudio.ba.web.rest;
 
+import org.apache.commons.lang.RandomStringUtils;
+
 import com.codahale.metrics.annotation.Timed;
 import com.infostudio.ba.domain.PmQuestComplStates;
 
@@ -60,6 +62,11 @@ public class PmQuestComplStatesResource {
         if (pmQuestComplStatesDTO.getId() != null) {
             throw new BadRequestAlertException("A new pmQuestComplStates cannot already have an ID", ENTITY_NAME, "idexists");
         }
+        String newCode = RandomStringUtils.randomAlphanumeric(7).toUpperCase();
+        while(pmQuestComplStatesRepository.findByCode(newCode) != null){
+            newCode = RandomStringUtils.randomAlphanumeric(7).toUpperCase();
+        }
+        pmQuestComplStatesDTO.setCode(newCode);
         PmQuestComplStates pmQuestComplStates = pmQuestComplStatesMapper.toEntity(pmQuestComplStatesDTO);
         pmQuestComplStates = pmQuestComplStatesRepository.save(pmQuestComplStates);
         PmQuestComplStatesDTO result = pmQuestComplStatesMapper.toDto(pmQuestComplStates);

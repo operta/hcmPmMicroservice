@@ -12,5 +12,6 @@ import org.springframework.data.jpa.repository.*;
 @SuppressWarnings("unused")
 @Repository
 public interface PmGoalTypesRepository extends JpaRepository<PmGoalTypes, Long> {
+    PmGoalTypes findByCode(String code);
 
 }
