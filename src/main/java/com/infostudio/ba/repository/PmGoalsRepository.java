@@ -22,4 +22,7 @@ public interface PmGoalsRepository extends JpaRepository<PmGoals, Long> {
     List<PmGoals> findByNameIgnoringCase(String name);
     */
     List<PmGoals> findByNameContainingIgnoreCase(String name);
+
+    // Gets the Pm Goals that have no parent Pm Goal
+    List<PmGoals> findAllByIdGoalIsNull();
 }

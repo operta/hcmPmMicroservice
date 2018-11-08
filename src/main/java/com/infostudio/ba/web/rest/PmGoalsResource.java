@@ -23,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.xml.ws.Response;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -133,6 +134,19 @@ public class PmGoalsResource {
         Page<PmGoals> page = new PageImpl<>(allGoalsList.subList(start, end), pageable, allGoalsList.size());
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/pm-goals");
         return new ResponseEntity<>(pmGoalsMapper.toDto(page.getContent()), headers, HttpStatus.OK);
+    }
+
+    /**
+     * GET /pm-goals/no-parent : get all PmGoals with no parent
+     *
+     * @return the ResponseEntity with status 200 and the PmGoals with no parents
+     */
+    @GetMapping("/pm-goals/no-parent")
+    public ResponseEntity<List<PmGoalsDTO>> getPmGoalsWithoutParent(){
+        log.debug("REST request to get PmGoals with no parent");
+        List<PmGoals> pmGoalsWithNoParent = pmGoalsRepository.findAllByIdGoalIsNull();
+        List<PmGoalsDTO> pmGoalsWithNoParentDTOS = pmGoalsMapper.toDto(pmGoalsWithNoParent);
+        return new ResponseEntity<>(pmGoalsWithNoParentDTOS, HttpStatus.OK);
     }
 
     /**
