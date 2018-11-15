@@ -123,6 +123,19 @@ public class PmGoalsEvaluationsResource {
     }
 
     /**
+     * GET  /pm-goals-evaluations/employee-goal/:id
+     *
+     * @param id the id of the employeeGoal for which the pm-goals-evaluations are retrieved
+     * @return the ResponseEntity with status 200 (OK) and with body the List<pmGoalsEvaluationsDTO>, or with status 404 (Not Found)
+     */
+    @GetMapping("/pm-goals-evaluations/employee-goal/{id}")
+    public ResponseEntity<List<PmGoalsEvaluationsDTO>> getPmGoalsEvaluationsByEmployeeGoal(@PathVariable Long id){
+        log.debug("REST request to get PmGoalsEvaluations by EmployeeGoalId: {}", id);
+        List<PmGoalsEvaluations> pmGoalsEvaluations = pmGoalsEvaluationsRepository.findAllByIdEmployeeGoalId(id);
+        return ResponseEntity.ok(pmGoalsEvaluationsMapper.toDto(pmGoalsEvaluations));
+    }
+
+    /**
      * DELETE  /pm-goals-evaluations/:id : delete the "id" pmGoalsEvaluations.
      *
      * @param id the id of the pmGoalsEvaluationsDTO to delete

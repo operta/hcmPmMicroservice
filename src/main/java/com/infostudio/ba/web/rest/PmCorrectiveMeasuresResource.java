@@ -108,6 +108,20 @@ public class PmCorrectiveMeasuresResource {
     }
 
     /**
+     * GET  /pm-corrective-measures/goal-evaluation/:id
+     *
+     * @param id the id of the GoalEvaluation to retrieve
+     * @return the ResponseEntity with status 200 (OK) and with body the List<pmCorrectiveMeasuresDTO>
+     */
+    @GetMapping("/pm-corrective-measures/goal-evaluation/{id}")
+    public ResponseEntity<List<PmCorrectiveMeasuresDTO>> getAllPmCorrectiveMeasuresByGoalEvaluation(@PathVariable Long id){
+        log.debug("REST request to get PmCorrectiveMeasures by GoalEvaluation : {}", id);
+        List<PmCorrectiveMeasures> pmCorrectiveMeasures = pmCorrectiveMeasuresRepository
+            .findAllByIdGoalEvaluationId(id);
+        return ResponseEntity.ok(pmCorrectiveMeasuresMapper.toDto(pmCorrectiveMeasures));
+    }
+
+    /**
      * GET  /pm-corrective-measures/:id : get the "id" pmCorrectiveMeasures.
      *
      * @param id the id of the pmCorrectiveMeasuresDTO to retrieve
