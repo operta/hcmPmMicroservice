@@ -106,6 +106,13 @@ public class PmGoalEvalQstComplResource {
         return new ResponseEntity<>(pmGoalEvalQstComplMapper.toDto(page.getContent()), headers, HttpStatus.OK);
     }
 
+    @GetMapping("/pm-goal-eval-qst-compls/goal-evaluation/{id}")
+    public ResponseEntity<List<PmGoalEvalQstComplDTO>> getAllPmGoalEvalQstComplsByGoalEvalId(@PathVariable Long id){
+        log.debug("REST request to get all the PmGoalEvalQstCompls by idGoalEvaluationId: ", id);
+        List<PmGoalEvalQstCompl> allPmGoalEvalQstCompl = pmGoalEvalQstComplRepository.findByIdGoalEvaluationId(id);
+        return new ResponseEntity<>(pmGoalEvalQstComplMapper.toDto(allPmGoalEvalQstCompl), HttpStatus.OK);
+    }
+
     /**
      * GET  /pm-goal-eval-qst-compls/:id : get the "id" pmGoalEvalQstCompl.
      *

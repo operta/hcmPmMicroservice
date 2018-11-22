@@ -1,6 +1,7 @@
 package com.infostudio.ba.repository;
 
 import com.infostudio.ba.domain.PmGoals;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Repository;
 
 import org.springframework.data.jpa.repository.*;

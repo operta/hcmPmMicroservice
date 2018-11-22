@@ -100,6 +100,28 @@ public class PmGoalsResource {
             .body(result);
     }
 
+    Page<PmGoals> getIntersectionOfPmGoals(Set<PmGoals> goals, Long employeeId, String goalName, Long goalTypeId,
+                                          Pageable pageable){
+        if(employeeId != null){
+            Set<PmGoals> goalsByEmployeeOwner = new HashSet<>(pmGoalsRepository.findByIdEmployeeOwner(employeeId));
+            goals.retainAll(goalsByEmployeeOwner);
+        }
+        if(goalName != null){
+            Set<PmGoals> goalsByName = new HashSet<>(pmGoalsRepository.findByNameContainingIgnoreCase(goalName));
+            goals.retainAll(goalsByName);
+        }
+        if(goalTypeId != null){
+            Set<PmGoals> goalsByGoalTypeId = new HashSet<>(pmGoalsRepository.findByIdGoalTypeId(goalTypeId));
+            goals.retainAll(goalsByGoalTypeId);
+        }
+
+        List<PmGoals> allGoalsList = new ArrayList<>(goals);
+        int start = pageable.getOffset();
+        int end = (start + pageable.getPageSize() > allGoalsList.size() ? allGoalsList.size() : (start + pageable.getPageSize()));
+
+        return new PageImpl<>(allGoalsList.subList(start, end), pageable, allGoalsList.size());
+    }
+
     /**
      * GET  /pm-goals : get all the pmGoals.
      *
@@ -115,23 +137,7 @@ public class PmGoalsResource {
         log.debug("REST request to get a page of PmGoals");
         Set<PmGoals> allGoals = new HashSet<>(pmGoalsRepository.findAll());
 
-        if(employeeId != null){
-            Set<PmGoals> goalsByEmployeeOwner = new HashSet<>(pmGoalsRepository.findByIdEmployeeOwner(employeeId));
-            allGoals.retainAll(goalsByEmployeeOwner);
-        }
-        if(goalName != null){
-            Set<PmGoals> goalsByName = new HashSet<>(pmGoalsRepository.findByNameContainingIgnoreCase(goalName));
-            allGoals.retainAll(goalsByName);
-        }
-        if(goalTypeId != null){
-            Set<PmGoals> goalsByGoalTypeId = new HashSet<>(pmGoalsRepository.findByIdGoalTypeId(goalTypeId));
-            allGoals.retainAll(goalsByGoalTypeId);
-        }
-        List<PmGoals> allGoalsList = new ArrayList<>(allGoals);
-        int start = pageable.getOffset();
-        int end = (start + pageable.getPageSize() > allGoalsList.size() ? allGoalsList.size() : (start + pageable.getPageSize()));
-
-        Page<PmGoals> page = new PageImpl<>(allGoalsList.subList(start, end), pageable, allGoalsList.size());
+        Page<PmGoals> page = getIntersectionOfPmGoals(allGoals, employeeId, goalName, goalTypeId, pageable);;
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/pm-goals");
         return new ResponseEntity<>(pmGoalsMapper.toDto(page.getContent()), headers, HttpStatus.OK);
     }
@@ -142,11 +148,16 @@ public class PmGoalsResource {
      * @return the ResponseEntity with status 200 and the PmGoals with no parents
      */
     @GetMapping("/pm-goals/no-parent")
-    public ResponseEntity<List<PmGoalsDTO>> getPmGoalsWithoutParent(){
+    public ResponseEntity<List<PmGoalsDTO>> getPmGoalsWithoutParent(@RequestParam(value = "employeeId", required = false)Long employeeId,
+                                                                    @RequestParam(value = "goalName", required = false)String goalName,
+                                                                    @RequestParam(value = "goalType", required = false)Long goalTypeId,
+                                                                    Pageable pageable){
         log.debug("REST request to get PmGoals with no parent");
-        List<PmGoals> pmGoalsWithNoParent = pmGoalsRepository.findAllByIdGoalIsNull();
-        List<PmGoalsDTO> pmGoalsWithNoParentDTOS = pmGoalsMapper.toDto(pmGoalsWithNoParent);
-        return new ResponseEntity<>(pmGoalsWithNoParentDTOS, HttpStatus.OK);
+        Set<PmGoals> pmGoalsWithNoParent = new HashSet<>(pmGoalsRepository.findAllByIdGoalIsNull());
+
+        Page<PmGoals> page = getIntersectionOfPmGoals(pmGoalsWithNoParent, employeeId, goalName, goalTypeId, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/pm-goals/no-parent");
+        return new ResponseEntity<>(pmGoalsMapper.toDto(page.getContent()), headers, HttpStatus.OK);
     }
 
     /**
