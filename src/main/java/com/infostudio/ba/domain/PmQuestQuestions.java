@@ -35,6 +35,10 @@ public class PmQuestQuestions extends AbstractAuditingEntity implements Serializ
     @Column(name = "id_detail", nullable = false)
     private Long idDetail;
 
+    @NotNull
+    @Column(name = "id_questionnaire", nullable = false)
+    private Long idQuestionnaire;
+
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
         return id;
@@ -42,6 +46,14 @@ public class PmQuestQuestions extends AbstractAuditingEntity implements Serializ
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getIdQuestionnaire() {
+        return idQuestionnaire;
+    }
+
+    public void setIdQuestionnaire(Long idQuestionnaire) {
+        this.idQuestionnaire = idQuestionnaire;
     }
 
     public String getDescription() {
@@ -111,6 +123,7 @@ public class PmQuestQuestions extends AbstractAuditingEntity implements Serializ
             ", description='" + getDescription() + "'" +
             ", weight=" + getWeight() +
             ", idDetail=" + getIdDetail() +
+            ", idQuestionnaire=" + getIdQuestionnaire() +
             "}";
     }
 }

@@ -21,6 +21,9 @@ public class PmQuestQuestionsDTO implements Serializable {
     @NotNull
     private Long idDetail;
 
+    @NotNull
+    private Long idQuestionnaire;
+
     private String createdBy;
 
     private Instant createdAt;
@@ -28,6 +31,14 @@ public class PmQuestQuestionsDTO implements Serializable {
     private String updatedBy;
 
     private Instant updatedAt;
+
+    public void setIdQuestionnaire(Long idQuestionnaire) {
+        this.idQuestionnaire = idQuestionnaire;
+    }
+
+    public Long getIdQuestionnaire() {
+        return idQuestionnaire;
+    }
 
     public String getCreatedBy() {
         return createdBy;
@@ -121,6 +132,7 @@ public class PmQuestQuestionsDTO implements Serializable {
             ", description='" + getDescription() + "'" +
             ", weight=" + getWeight() +
             ", idDetail=" + getIdDetail() +
+            ", idQuestionnaire=" + getIdQuestionnaire() +
             "}";
     }
 }
