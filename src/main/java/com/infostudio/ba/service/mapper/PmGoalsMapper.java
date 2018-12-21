@@ -12,7 +12,9 @@ import org.mapstruct.*;
 public interface PmGoalsMapper extends EntityMapper<PmGoalsDTO, PmGoals> {
 
     @Mapping(source = "idGoalType.id", target = "idGoalTypeId")
+    @Mapping(source = "idGoalType.name", target = "idGoalTypeName")
     @Mapping(source = "idGoal.id", target = "idGoalId")
+    @Mapping(source = "idGoal.name", target = "idGoalName")
     PmGoalsDTO toDto(PmGoals pmGoals);
 
     @Mapping(source = "idGoalTypeId", target = "idGoalType")

@@ -41,7 +41,7 @@ public class PmGoals extends AbstractAuditingEntity implements Serializable {
 
     @NotNull
     @Column(name = "is_active", nullable = false)
-    private String isActive;
+    private Integer isActive;
 
     @ManyToOne
     @JoinColumn(name = "id_goal_type")
@@ -112,16 +112,16 @@ public class PmGoals extends AbstractAuditingEntity implements Serializable {
         this.idEmployeeOwner = idEmployeeOwner;
     }
 
-    public String getIsActive() {
+    public Integer getIsActive() {
         return isActive;
     }
 
-    public PmGoals isActive(String isActive) {
+    public PmGoals isActive(Integer isActive) {
         this.isActive = isActive;
         return this;
     }
 
-    public void setIsActive(String isActive) {
+    public void setIsActive(Integer isActive) {
         this.isActive = isActive;
     }
 

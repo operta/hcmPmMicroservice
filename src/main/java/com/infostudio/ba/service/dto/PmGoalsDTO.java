@@ -25,11 +25,15 @@ public class PmGoalsDTO implements Serializable {
     private Long idEmployeeOwner;
 
     @NotNull
-    private String isActive;
+    private Integer isActive;
 
     private Long idGoalTypeId;
 
+    private String idGoalTypeName;
+
     private Long idGoalId;
+
+    private String idGoalName;
 
     private String createdBy;
 
@@ -38,6 +42,22 @@ public class PmGoalsDTO implements Serializable {
     private String updatedBy;
 
     private Instant updatedAt;
+
+    public String getIdGoalName() {
+        return idGoalName;
+    }
+
+    public void setIdGoalName(String idGoalName) {
+        this.idGoalName = idGoalName;
+    }
+
+    public String getIdGoalTypeName() {
+        return idGoalTypeName;
+    }
+
+    public void setIdGoalTypeName(String idGoalTypeName) {
+        this.idGoalTypeName = idGoalTypeName;
+    }
 
     public String getCreatedBy() {
         return createdBy;
@@ -111,11 +131,11 @@ public class PmGoalsDTO implements Serializable {
         this.idEmployeeOwner = idEmployeeOwner;
     }
 
-    public String getIsActive() {
+    public Integer getIsActive() {
         return isActive;
     }
 
-    public void setIsActive(String isActive) {
+    public void setIsActive(Integer isActive) {
         this.isActive = isActive;
     }
 
