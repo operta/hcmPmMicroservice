@@ -15,6 +15,5 @@ import java.util.List;
 @Repository
 public interface PmGoalEvalQstComplRepository extends JpaRepository<PmGoalEvalQstCompl, Long> {
     List<PmGoalEvalQstCompl> findByIdGoalEvaluationId(Long id);
-
-    List<PmGoalEvalQstCompl> findByIdQuestionaireCompletionId(Long id);
+    List<PmGoalEvalQstCompl> findByIdQuestionnaireCompletionId(Long id);
 }
