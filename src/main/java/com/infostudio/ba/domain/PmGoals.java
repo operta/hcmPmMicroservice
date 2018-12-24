@@ -29,6 +29,10 @@ public class PmGoals extends AbstractAuditingEntity implements Serializable {
     private String code;
 
     @NotNull
+    @Column(name = "archived", nullable = false)
+    private String archived;
+
+    @NotNull
     @Column(name = "name", nullable = false)
     private String name;
 
@@ -50,6 +54,14 @@ public class PmGoals extends AbstractAuditingEntity implements Serializable {
     @ManyToOne
     @JoinColumn(name = "id_goal")
     private PmGoals idGoal;
+
+    public String getArchived() {
+        return archived;
+    }
+
+    public void setArchived(String archived) {
+        this.archived = archived;
+    }
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
     public Long getId() {
@@ -178,6 +190,7 @@ public class PmGoals extends AbstractAuditingEntity implements Serializable {
             "id=" + getId() +
             ", code='" + getCode() + "'" +
             ", name='" + getName() + "'" +
+            ", archived='" + getArchived() + "'" +
             ", description='" + getDescription() + "'" +
             ", idEmployeeOwner=" + getIdEmployeeOwner() +
             ", isActive='" + getIsActive() + "'" +

@@ -19,6 +19,9 @@ public class PmGoalsDTO implements Serializable {
     @NotNull
     private String name;
 
+    @NotNull
+    private String archived = "N";
+
     private String description;
 
     @NotNull
@@ -42,6 +45,14 @@ public class PmGoalsDTO implements Serializable {
     private String updatedBy;
 
     private Instant updatedAt;
+
+    public String getArchived() {
+        return archived;
+    }
+
+    public void setArchived(String archived) {
+        this.archived = archived;
+    }
 
     public String getIdGoalName() {
         return idGoalName;

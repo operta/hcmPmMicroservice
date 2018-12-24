@@ -40,6 +40,8 @@ public class PmGoalsResource {
 
     private static final String ENTITY_NAME = "pmGoals";
 
+    private final String ARCHIVED = "N";
+
     private final PmGoalsRepository pmGoalsRepository;
 
     private final PmGoalsMapper pmGoalsMapper;
@@ -68,6 +70,7 @@ public class PmGoalsResource {
             newCode = RandomStringUtils.randomAlphanumeric(7).toUpperCase();
         }
         pmGoalsDTO.setCode(newCode);
+        pmGoalsDTO.setArchived(ARCHIVED);
         PmGoals pmGoals = pmGoalsMapper.toEntity(pmGoalsDTO);
         pmGoals = pmGoalsRepository.save(pmGoals);
         PmGoalsDTO result = pmGoalsMapper.toDto(pmGoals);
@@ -133,9 +136,16 @@ public class PmGoalsResource {
     public ResponseEntity<List<PmGoalsDTO>> getAllPmGoals(@RequestParam(name = "employeeId", required = false)Long employeeId,
                                                           @RequestParam(name = "goalName", required = false)String goalName,
                                                           @RequestParam(name = "goalType", required = false)Long goalTypeId,
+                                                          @RequestParam(value = "archived", required = false) String archived,
                                                           Pageable pageable) {
         log.debug("REST request to get a page of PmGoals");
-        Set<PmGoals> allGoals = new HashSet<>(pmGoalsRepository.findAll());
+        if(archived == null) {
+            archived = ARCHIVED;
+        } else if(!archived.equals("N") && !archived.equals("Y")){
+            throw new BadRequestAlertException("Archived cannot have field different from 'Y' or 'N'", ENTITY_NAME,
+                "archivedoutofbounds");
+        }
+        Set<PmGoals> allGoals = new HashSet<PmGoals>(this.pmGoalsRepository.findByArchived(archived));
 
         Page<PmGoals> page = getIntersectionOfPmGoals(allGoals, employeeId, goalName, goalTypeId, pageable);;
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/pm-goals");
@@ -151,9 +161,18 @@ public class PmGoalsResource {
     public ResponseEntity<List<PmGoalsDTO>> getPmGoalsWithoutParent(@RequestParam(value = "employeeId", required = false)Long employeeId,
                                                                     @RequestParam(value = "goalName", required = false)String goalName,
                                                                     @RequestParam(value = "goalType", required = false)Long goalTypeId,
+                                                                    @RequestParam(value = "archived", required = false) String archived,
                                                                     Pageable pageable){
         log.debug("REST request to get PmGoals with no parent");
+        if(archived == null) {
+            archived = ARCHIVED;
+        } else if(!archived.equals("N") && !archived.equals("Y")){
+            throw new BadRequestAlertException("Archived cannot have field different from 'Y' or 'N'", ENTITY_NAME,
+                "archivedoutofbounds");
+        }
+        Set<PmGoals> goalsByArchived = new HashSet<PmGoals>(this.pmGoalsRepository.findByArchived(archived));
         Set<PmGoals> pmGoalsWithNoParent = new HashSet<>(pmGoalsRepository.findAllByIdGoalIsNull());
+        pmGoalsWithNoParent.retainAll(goalsByArchived);
 
         Page<PmGoals> page = getIntersectionOfPmGoals(pmGoalsWithNoParent, employeeId, goalName, goalTypeId, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/pm-goals/no-parent");
