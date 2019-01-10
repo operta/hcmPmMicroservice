@@ -57,6 +57,11 @@ public class PmQuestCompletions extends AbstractAuditingEntity implements Serial
         this.id = id;
     }
 
+    public PmQuestCompletions withId(Long id){
+        this.id = id;
+        return this;
+    }
+
     public String getDescription() {
         return description;
     }

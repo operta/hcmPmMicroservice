@@ -70,6 +70,11 @@ public class PmGoalsEvaluations extends AbstractAuditingEntity implements Serial
         this.id = id;
     }
 
+    public PmGoalsEvaluations withId(Long id){
+        this.id = id;
+        return this;
+    }
+
     public LocalDate getEvaluationDate() {
         return evaluationDate;
     }

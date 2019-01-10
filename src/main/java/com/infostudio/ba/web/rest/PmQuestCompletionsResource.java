@@ -1,9 +1,14 @@
 package com.infostudio.ba.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import com.infostudio.ba.domain.PmGoalEvalQstCompl;
+import com.infostudio.ba.domain.PmGoalsEvaluations;
 import com.infostudio.ba.domain.PmQuestCompletions;
 
+import com.infostudio.ba.repository.PmGoalEvalQstComplRepository;
+import com.infostudio.ba.repository.PmGoalsEvaluationsRepository;
 import com.infostudio.ba.repository.PmQuestCompletionsRepository;
+import com.infostudio.ba.service.mapper.PmGoalEvalQstComplMapper;
 import com.infostudio.ba.web.rest.errors.BadRequestAlertException;
 import com.infostudio.ba.web.rest.util.HeaderUtil;
 import com.infostudio.ba.web.rest.util.PaginationUtil;
@@ -41,9 +46,28 @@ public class PmQuestCompletionsResource {
 
     private final PmQuestCompletionsMapper pmQuestCompletionsMapper;
 
-    public PmQuestCompletionsResource(PmQuestCompletionsRepository pmQuestCompletionsRepository, PmQuestCompletionsMapper pmQuestCompletionsMapper) {
+    private final PmGoalEvalQstComplRepository pmGoalEvalQstComplRepository;
+
+    private final PmGoalsEvaluationsRepository pmGoalsEvaluationsRepository;
+
+    public PmQuestCompletionsResource(PmQuestCompletionsRepository pmQuestCompletionsRepository, PmQuestCompletionsMapper pmQuestCompletionsMapper,
+                                      PmGoalEvalQstComplRepository pmGoalEvalQstComplRepository, PmGoalsEvaluationsRepository pmGoalsEvaluationsRepository) {
         this.pmQuestCompletionsRepository = pmQuestCompletionsRepository;
         this.pmQuestCompletionsMapper = pmQuestCompletionsMapper;
+        this.pmGoalEvalQstComplRepository = pmGoalEvalQstComplRepository;
+        this.pmGoalsEvaluationsRepository = pmGoalsEvaluationsRepository;
+
+    }
+
+    private PmQuestCompletionsDTO basicPostCheckForPmQuestCompletions(PmQuestCompletionsDTO pmQuestCompletionsDTO){
+        log.debug("REST request to save PmQuestCompletions : {}", pmQuestCompletionsDTO);
+        if (pmQuestCompletionsDTO.getId() != null) {
+            throw new BadRequestAlertException("A new pmQuestCompletions cannot already have an ID", ENTITY_NAME, "idexists");
+        }
+        PmQuestCompletions pmQuestCompletions = pmQuestCompletionsMapper.toEntity(pmQuestCompletionsDTO);
+        pmQuestCompletions = pmQuestCompletionsRepository.save(pmQuestCompletions);
+        PmQuestCompletionsDTO result = pmQuestCompletionsMapper.toDto(pmQuestCompletions);
+        return result;
     }
 
     /**
@@ -54,15 +78,33 @@ public class PmQuestCompletionsResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
     @PostMapping("/pm-quest-completions")
-    @Timed
     public ResponseEntity<PmQuestCompletionsDTO> createPmQuestCompletions(@Valid @RequestBody PmQuestCompletionsDTO pmQuestCompletionsDTO) throws URISyntaxException {
-        log.debug("REST request to save PmQuestCompletions : {}", pmQuestCompletionsDTO);
-        if (pmQuestCompletionsDTO.getId() != null) {
-            throw new BadRequestAlertException("A new pmQuestCompletions cannot already have an ID", ENTITY_NAME, "idexists");
+        PmQuestCompletionsDTO result = basicPostCheckForPmQuestCompletions(pmQuestCompletionsDTO);
+        return ResponseEntity.created(new URI("/api/pm-quest-completions/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
+            .body(result);
+    }
+
+    @PostMapping("/pm-quest-completions/goal-evaluation/{id}")
+    @Timed
+    public ResponseEntity<PmQuestCompletionsDTO> createPmQuestCompletions(@PathVariable Long id, @Valid @RequestBody PmQuestCompletionsDTO pmQuestCompletionsDTO) throws URISyntaxException {
+        PmGoalsEvaluations pmGoalsEvaluations = pmGoalsEvaluationsRepository.findOne(id);
+        if(pmGoalsEvaluations == null){
+            throw new BadRequestAlertException("Goal evaluation with id " + id + " does not exist",
+                ENTITY_NAME, "goalevaluationdoesnotexist");
         }
-        PmQuestCompletions pmQuestCompletions = pmQuestCompletionsMapper.toEntity(pmQuestCompletionsDTO);
-        pmQuestCompletions = pmQuestCompletionsRepository.save(pmQuestCompletions);
-        PmQuestCompletionsDTO result = pmQuestCompletionsMapper.toDto(pmQuestCompletions);
+
+        PmQuestCompletionsDTO result = basicPostCheckForPmQuestCompletions(pmQuestCompletionsDTO);
+
+
+        PmGoalEvalQstCompl pmGoalEvalQstCompl = new PmGoalEvalQstCompl();
+        pmGoalEvalQstCompl.setIdGoalEvaluation(new PmGoalsEvaluations().withId(id));
+        pmGoalEvalQstCompl.setIdQuestionaireCompletion(new PmQuestCompletions().withId(result.getId()));
+        pmGoalEvalQstCompl.setDescription("Automatically created!");
+
+        log.debug("Chain request to save PmGoalEvalQstCompl: {}", pmGoalEvalQstCompl);
+        pmGoalEvalQstComplRepository.save(pmGoalEvalQstCompl);
+
         return ResponseEntity.created(new URI("/api/pm-quest-completions/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
