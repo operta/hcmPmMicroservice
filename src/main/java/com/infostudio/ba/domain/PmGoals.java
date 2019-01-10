@@ -2,6 +2,8 @@ package com.infostudio.ba.domain;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -53,6 +55,7 @@ public class PmGoals extends AbstractAuditingEntity implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "id_goal")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private PmGoals idGoal;
 
     public String getArchived() {

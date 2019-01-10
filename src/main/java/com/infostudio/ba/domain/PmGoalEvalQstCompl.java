@@ -2,6 +2,8 @@ package com.infostudio.ba.domain;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 
@@ -28,6 +30,7 @@ public class PmGoalEvalQstCompl extends AbstractAuditingEntity implements Serial
 
     @ManyToOne
     @JoinColumn(name = "id_questionnaire_completion")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private PmQuestCompletions idQuestionnaireCompletion;
 
     @ManyToOne

@@ -1,11 +1,11 @@
 package com.infostudio.ba.web.rest;
 
+import com.infostudio.ba.repository.*;
 import org.apache.commons.lang.RandomStringUtils;
 
 import com.codahale.metrics.annotation.Timed;
 import com.infostudio.ba.domain.PmGoals;
 
-import com.infostudio.ba.repository.PmGoalsRepository;
 import com.infostudio.ba.web.rest.errors.BadRequestAlertException;
 import com.infostudio.ba.web.rest.util.HeaderUtil;
 import com.infostudio.ba.web.rest.util.PaginationUtil;

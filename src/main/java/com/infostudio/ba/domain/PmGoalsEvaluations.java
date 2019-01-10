@@ -2,6 +2,8 @@ package com.infostudio.ba.domain;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -55,6 +57,7 @@ public class PmGoalsEvaluations extends AbstractAuditingEntity implements Serial
 
     @ManyToOne
     @JoinColumn(name = "id_employee_goal")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private PmEmployeesGoals idEmployeeGoal;
 
     @ManyToOne

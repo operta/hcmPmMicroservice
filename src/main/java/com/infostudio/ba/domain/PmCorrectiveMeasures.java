@@ -2,6 +2,8 @@ package com.infostudio.ba.domain;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -54,6 +56,7 @@ public class PmCorrectiveMeasures extends AbstractAuditingEntity implements Seri
 
     @ManyToOne
     @JoinColumn(name = "id_goal_evaluation")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private PmGoalsEvaluations idGoalEvaluation;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
