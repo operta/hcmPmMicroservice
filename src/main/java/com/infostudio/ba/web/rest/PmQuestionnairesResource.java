@@ -1,9 +1,12 @@
 package com.infostudio.ba.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.instance.HazelcastInstanceFactory;
 import com.infostudio.ba.domain.PmQuestionnaires;
 
 import com.infostudio.ba.repository.PmQuestionnairesRepository;
+import com.infostudio.ba.service.dto.PmQuestCompletionsDTO;
 import com.infostudio.ba.web.rest.errors.BadRequestAlertException;
 import com.infostudio.ba.web.rest.util.HeaderUtil;
 import com.infostudio.ba.web.rest.util.PaginationUtil;
@@ -120,6 +123,15 @@ public class PmQuestionnairesResource {
         PmQuestionnaires pmQuestionnaires = pmQuestionnairesRepository.findOne(id);
         PmQuestionnairesDTO pmQuestionnairesDTO = pmQuestionnairesMapper.toDto(pmQuestionnaires);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(pmQuestionnairesDTO));
+    }
+
+    @GetMapping("/pm-questionnaires/header/{id}")
+    @Timed
+    public ResponseEntity<List<PmQuestionnairesDTO>> getPmQuestionnairesByHeaderId(@PathVariable Long id){
+        log.debug("REST request to get PmQuestionnaires by Header id: {}", id);
+        List<PmQuestionnaires> pmQuestionnaires = pmQuestionnairesRepository.findByIdHeader(id);
+        List<PmQuestionnairesDTO> pmQuestionnairesDTO = pmQuestionnairesMapper.toDto(pmQuestionnaires);
+        return ResponseEntity.ok(pmQuestionnairesDTO);
     }
 
     /**

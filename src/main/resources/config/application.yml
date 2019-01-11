@@ -37,21 +37,25 @@ eureka:
 ribbon:
     eureka:
         enabled: true
-# See https://github.com/Netflix/Hystrix/wiki/Configuration
-#hystrix:
-#    command:
-#        default:
-#            execution:
-#                isolation:
-#                    thread:
-#                        timeoutInMilliseconds: 10000
-# See https://github.com/spring-cloud/spring-cloud-netflix/issues/1330
-feign:
-    hystrix:
-        enabled: true
+zuul:
+    host:
+        connect-timeout-millis: 5000
+        socket-timeout-millis: 10000
 
 hystrix:
     share-security-context: true
+    command:
+        default:
+            execution:
+                timeout:
+                    enabled: false
+                isolation:
+                    thread:
+                        timeoutInMilliseconds: 10000
+
+feign:
+    hystrix:
+        enabled: true
 
 management:
     security:
