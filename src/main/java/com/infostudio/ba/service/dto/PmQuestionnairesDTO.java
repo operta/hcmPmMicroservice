@@ -20,6 +20,8 @@ public class PmQuestionnairesDTO implements Serializable {
 
     private Long idQuestionnaireTypeId;
 
+    private String idQuestionnaireTypeName;
+
     private String createdBy;
 
     private Instant createdAt;

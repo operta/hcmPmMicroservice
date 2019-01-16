@@ -12,6 +12,7 @@ import org.mapstruct.*;
 public interface PmQuestionnairesMapper extends EntityMapper<PmQuestionnairesDTO, PmQuestionnaires> {
 
     @Mapping(source = "idQuestionnaireType.id", target = "idQuestionnaireTypeId")
+    @Mapping(source = "idQuestionnaireType.name", target = "idQuestionnaireTypeName")
     PmQuestionnairesDTO toDto(PmQuestionnaires pmQuestionnaires);
 
     @Mapping(source = "idQuestionnaireTypeId", target = "idQuestionnaireType")
