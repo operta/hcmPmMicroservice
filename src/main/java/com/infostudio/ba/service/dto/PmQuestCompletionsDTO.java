@@ -18,7 +18,6 @@ public class PmQuestCompletionsDTO implements Serializable {
 
     private String description;
 
-    @NotNull
     private Long idEmployeeCompletedBy;
 
     @NotNull
