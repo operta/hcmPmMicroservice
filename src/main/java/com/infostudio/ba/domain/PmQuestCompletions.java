@@ -28,8 +28,7 @@ public class PmQuestCompletions extends AbstractAuditingEntity implements Serial
     @Column(name = "description")
     private String description;
 
-    @NotNull
-    @Column(name = "id_employee_completed_by", nullable = false)
+    @Column(name = "id_employee_completed_by")
     private Long idEmployeeCompletedBy;
 
     @NotNull
