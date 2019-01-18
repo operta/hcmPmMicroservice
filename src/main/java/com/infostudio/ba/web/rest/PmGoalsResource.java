@@ -103,8 +103,8 @@ public class PmGoalsResource {
             .body(result);
     }
 
-    Page<PmGoals> getIntersectionOfPmGoals(Set<PmGoals> goals, Long employeeId, String goalName, Long goalTypeId,
-                                          Pageable pageable){
+    private Page<PmGoals> getIntersectionOfPmGoals(Set<PmGoals> goals, Long employeeId, String goalName, Long goalTypeId,
+                                                   Pageable pageable){
         if(employeeId != null){
             Set<PmGoals> goalsByEmployeeOwner = new HashSet<>(pmGoalsRepository.findByIdEmployeeOwner(employeeId));
             goals.retainAll(goalsByEmployeeOwner);
