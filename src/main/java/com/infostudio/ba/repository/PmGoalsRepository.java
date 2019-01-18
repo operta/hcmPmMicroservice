@@ -19,11 +19,10 @@ public interface PmGoalsRepository extends JpaRepository<PmGoals, Long> {
     PmGoals findByCode(String code);
     List<PmGoals> findByIdEmployeeOwner(Long id);
     List<PmGoals> findByIdGoalTypeId(Long id);
-    /*
-    @Query("SELECT pg FROM PmGoals pg WHERE UPPER(?1) LIKE UPPER(pg.name)")
-    List<PmGoals> findByNameIgnoringCase(String name);
-    */
+
     List<PmGoals> findByNameContainingIgnoreCase(String name);
+
+    List<PmGoals> findByIdGoalId(Long goalChildId);
 
     // Gets the Pm Goals that have no parent Pm Goal
     List<PmGoals> findAllByIdGoalIsNull();

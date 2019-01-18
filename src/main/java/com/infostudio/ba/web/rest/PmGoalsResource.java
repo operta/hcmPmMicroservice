@@ -95,13 +95,31 @@ public class PmGoalsResource {
         if (pmGoalsDTO.getId() == null) {
             return createPmGoals(pmGoalsDTO);
         }
-        // TODO -> if archived updated, update all childs with the same value
+        PmGoals pmGoalFromDB = pmGoalsRepository.findOne(pmGoalsDTO.getId());
+        if (pmGoalFromDB == null) {
+            throw new BadRequestAlertException("PmGoal with id " + pmGoalsDTO.getId() + " does not exist!",
+                ENTITY_NAME, "pmgoaldoesnotexist");
+        }
+        if (!pmGoalFromDB.getArchived().equals(pmGoalsDTO.getArchived())) {
+            pmGoalsRepository.save(pmGoalsMapper.toEntity(pmGoalsDTO));
+            updateAllChildPmGoals(pmGoalsDTO.getId(), pmGoalsDTO.getArchived());
+            return ResponseEntity.ok(pmGoalsDTO);
+        }
         PmGoals pmGoals = pmGoalsMapper.toEntity(pmGoalsDTO);
         pmGoals = pmGoalsRepository.save(pmGoals);
         PmGoalsDTO result = pmGoalsMapper.toDto(pmGoals);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, pmGoalsDTO.getId().toString()))
             .body(result);
+    }
+
+    private void updateAllChildPmGoals(Long idGoal, String archived) {
+        List<PmGoals> goals = pmGoalsRepository.findByIdGoalId(idGoal);
+        for (PmGoals goal : goals) {
+            goal.setArchived(archived);
+            pmGoalsRepository.save(goal);
+            updateAllChildPmGoals(goal.getId(), archived);
+        }
     }
 
     private Page<PmGoals> getIntersectionOfPmGoals(Set<PmGoals> goals, Long employeeId, String goalName, Long goalTypeId,

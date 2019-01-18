@@ -111,7 +111,7 @@ public class PmQuestComplAnswersResource {
             .body(result);
     }
 
-    @PostMapping("/pm-quest-compl-answers/list")
+    @PostMapping("/pm-quest-compl-answers/multiple")
     @Time
     public ResponseEntity<List<PmQuestComplAnswersDTO>> createPmQuestComplAnswersFromAList(@RequestBody List<PmQuestComplAnswersDTO> pmQuestComplAnswers) throws URISyntaxException {
         log.debug("REST request to save PmQuestCompLAnswers list: {}", pmQuestComplAnswers);
