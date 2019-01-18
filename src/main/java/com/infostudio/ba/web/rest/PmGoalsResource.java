@@ -95,6 +95,7 @@ public class PmGoalsResource {
         if (pmGoalsDTO.getId() == null) {
             return createPmGoals(pmGoalsDTO);
         }
+        // TODO -> if archived updated, update all childs with the same value
         PmGoals pmGoals = pmGoalsMapper.toEntity(pmGoalsDTO);
         pmGoals = pmGoalsRepository.save(pmGoals);
         PmGoalsDTO result = pmGoalsMapper.toDto(pmGoals);
