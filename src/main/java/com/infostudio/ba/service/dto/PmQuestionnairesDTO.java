@@ -28,6 +28,14 @@ public class PmQuestionnairesDTO implements Serializable {
 
     private Instant updatedAt;
 
+    public PmQuestionnairesDTO() { }
+
+    public PmQuestionnairesDTO(Long id, Long idHeader, Long idQuestionnaireTypeId) {
+        this.id = id;
+        this.idHeader = idHeader;
+        this.idQuestionnaireTypeId = idQuestionnaireTypeId;
+    }
+
     public String getCreatedBy() {
         return createdBy;
     }

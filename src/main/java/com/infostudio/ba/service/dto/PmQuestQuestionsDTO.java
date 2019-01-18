@@ -21,7 +21,6 @@ public class PmQuestQuestionsDTO implements Serializable {
     @NotNull
     private Long idDetail;
 
-    @NotNull
     private Long idQuestionnaire;
 
     private String createdBy;

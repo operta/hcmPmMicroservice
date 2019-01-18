@@ -3,10 +3,15 @@ package com.infostudio.ba.web.rest;
 import com.codahale.metrics.annotation.Timed;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.instance.HazelcastInstanceFactory;
+import com.infostudio.ba.domain.PmQuestQuestions;
 import com.infostudio.ba.domain.PmQuestionnaires;
 
+import com.infostudio.ba.repository.PmQuestQuestionsRepository;
 import com.infostudio.ba.repository.PmQuestionnairesRepository;
 import com.infostudio.ba.service.dto.PmQuestCompletionsDTO;
+import com.infostudio.ba.service.dto.PmQuestQuestionsDTO;
+import com.infostudio.ba.service.helper.model.PmQuestionnairesComposition;
+import com.infostudio.ba.service.mapper.PmQuestQuestionsMapper;
 import com.infostudio.ba.web.rest.errors.BadRequestAlertException;
 import com.infostudio.ba.web.rest.util.HeaderUtil;
 import com.infostudio.ba.web.rest.util.PaginationUtil;
@@ -26,8 +31,10 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing PmQuestionnaires.
@@ -44,9 +51,16 @@ public class PmQuestionnairesResource {
 
     private final PmQuestionnairesMapper pmQuestionnairesMapper;
 
-    public PmQuestionnairesResource(PmQuestionnairesRepository pmQuestionnairesRepository, PmQuestionnairesMapper pmQuestionnairesMapper) {
+    private final PmQuestQuestionsMapper pmQuestQuestionsMapper;
+
+    private final PmQuestQuestionsRepository pmQuestQuestionsRepository;
+
+    public PmQuestionnairesResource(PmQuestionnairesRepository pmQuestionnairesRepository, PmQuestionnairesMapper pmQuestionnairesMapper,
+                                    PmQuestQuestionsMapper pmQuestQuestionsMapper, PmQuestQuestionsRepository pmQuestQuestionsRepository) {
         this.pmQuestionnairesRepository = pmQuestionnairesRepository;
         this.pmQuestionnairesMapper = pmQuestionnairesMapper;
+        this.pmQuestQuestionsMapper = pmQuestQuestionsMapper;
+        this.pmQuestQuestionsRepository = pmQuestQuestionsRepository;
     }
 
     /**
@@ -69,6 +83,50 @@ public class PmQuestionnairesResource {
         return ResponseEntity.created(new URI("/api/pm-questionnaires/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
+    }
+
+    @PostMapping("/pm-questionnaires/with-questions")
+    @Timed
+    public ResponseEntity<PmQuestionnairesComposition> createPmQuestionnairesWithQuestions(@RequestBody PmQuestionnairesComposition pmQuestionnairesComposition) throws URISyntaxException {
+        log.debug("REST request to save PmQuestionnaire with PmQuestions: {}", pmQuestionnairesComposition);
+
+        Long id = pmQuestionnairesComposition.getId();
+        Long idHeader = pmQuestionnairesComposition.getIdHeader();
+        Long idQuestionnaireTypeId = pmQuestionnairesComposition.getIdQuestionnaireTypeId();
+        PmQuestionnairesDTO questionnaire = new PmQuestionnairesDTO(id, idHeader, idQuestionnaireTypeId);
+
+        if (questionnaire.getId() != null) {
+            throw new BadRequestAlertException("A new pmQuestionnaires cannot already have an ID", ENTITY_NAME,
+                "idexists");
+        }
+        if (questionnaire.getIdHeader() == null) {
+            throw new BadRequestAlertException("A new pmQuestionnaire must have an id header", ENTITY_NAME,
+                "idheadernull");
+        }
+        if (questionnaire.getIdQuestionnaireTypeId() == null) {
+            throw new BadRequestAlertException("A new pmQuestionnaire must have a type", ENTITY_NAME,
+                "typeidnull");
+        }
+        PmQuestionnaires questionnaireEntity = pmQuestionnairesMapper.toEntity(questionnaire);
+        questionnaireEntity = pmQuestionnairesRepository.save(questionnaireEntity);
+        questionnaire = pmQuestionnairesMapper.toDto(questionnaireEntity);
+
+        final PmQuestionnairesDTO finalQuestionnaire = questionnaire;
+        List<PmQuestQuestionsDTO> questions = pmQuestionnairesComposition.getQuestions().stream()
+            .peek((q) -> q.setIdQuestionnaire(finalQuestionnaire.getId()))
+            .collect(Collectors.toList());
+
+        List<PmQuestQuestionsDTO> outputQuestions = new ArrayList<>();
+        for (PmQuestQuestionsDTO question : questions) {
+            PmQuestQuestions questionEntity = pmQuestQuestionsMapper.toEntity(question);
+            questionEntity = pmQuestQuestionsRepository.save(questionEntity);
+            outputQuestions.add(pmQuestQuestionsMapper.toDto(questionEntity));
+        }
+
+        PmQuestionnairesComposition outputToClient = new PmQuestionnairesComposition(finalQuestionnaire, outputQuestions);
+        return ResponseEntity.created(URI.create("/api/pm-questionnaires/" + questionnaire.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, questionnaire.getId().toString()))
+            .body(outputToClient);
     }
 
     /**
