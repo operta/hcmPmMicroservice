@@ -47,7 +47,11 @@ public class PmEmployeesGoalsDTO implements Serializable {
 
     private Long idUnitId;
 
+    private String idUnitName;
+
     private Long idGoalStateId;
+
+    private String idGoalStateName;
 
     private Long idGoalId;
 
@@ -58,6 +62,22 @@ public class PmEmployeesGoalsDTO implements Serializable {
     private String updatedBy;
 
     private Instant updatedAt;
+
+    public String getIdUnitName() {
+        return idUnitName;
+    }
+
+    public void setIdUnitName(String idUnitName) {
+        this.idUnitName = idUnitName;
+    }
+
+    public String getIdGoalStateName() {
+        return idGoalStateName;
+    }
+
+    public void setIdGoalStateName(String idGoalStateName) {
+        this.idGoalStateName = idGoalStateName;
+    }
 
     public String getCreatedBy() {
         return createdBy;

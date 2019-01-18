@@ -20,6 +20,8 @@ public class PmQuestionnairesDTO implements Serializable {
 
     private Long idQuestionnaireTypeId;
 
+    private String idQuestionnaireTypeName;
+
     private String createdBy;
 
     private Instant createdAt;
@@ -90,6 +92,14 @@ public class PmQuestionnairesDTO implements Serializable {
 
     public void setIdQuestionnaireTypeId(Long pmQuestTypesId) {
         this.idQuestionnaireTypeId = pmQuestTypesId;
+    }
+
+    public String getIdQuestionnaireTypeName() {
+        return idQuestionnaireTypeName;
+    }
+
+    public void setIdQuestionnaireTypeName(String idQuestionnaireTypeName) {
+        this.idQuestionnaireTypeName = idQuestionnaireTypeName;
     }
 
     @Override
