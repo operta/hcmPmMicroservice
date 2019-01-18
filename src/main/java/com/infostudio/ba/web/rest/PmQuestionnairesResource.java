@@ -3,9 +3,11 @@ package com.infostudio.ba.web.rest;
 import com.codahale.metrics.annotation.Timed;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.instance.HazelcastInstanceFactory;
+import com.infostudio.ba.domain.PmQuestCompletions;
 import com.infostudio.ba.domain.PmQuestQuestions;
 import com.infostudio.ba.domain.PmQuestionnaires;
 
+import com.infostudio.ba.repository.PmQuestCompletionsRepository;
 import com.infostudio.ba.repository.PmQuestQuestionsRepository;
 import com.infostudio.ba.repository.PmQuestionnairesRepository;
 import com.infostudio.ba.service.dto.PmQuestCompletionsDTO;
@@ -55,12 +57,16 @@ public class PmQuestionnairesResource {
 
     private final PmQuestQuestionsRepository pmQuestQuestionsRepository;
 
+    private final PmQuestCompletionsRepository pmQuestCompletionsRepository;
+
     public PmQuestionnairesResource(PmQuestionnairesRepository pmQuestionnairesRepository, PmQuestionnairesMapper pmQuestionnairesMapper,
-                                    PmQuestQuestionsMapper pmQuestQuestionsMapper, PmQuestQuestionsRepository pmQuestQuestionsRepository) {
+                                    PmQuestQuestionsMapper pmQuestQuestionsMapper, PmQuestQuestionsRepository pmQuestQuestionsRepository,
+                                    PmQuestCompletionsRepository pmQuestCompletionsRepository) {
         this.pmQuestionnairesRepository = pmQuestionnairesRepository;
         this.pmQuestionnairesMapper = pmQuestionnairesMapper;
         this.pmQuestQuestionsMapper = pmQuestQuestionsMapper;
         this.pmQuestQuestionsRepository = pmQuestQuestionsRepository;
+        this.pmQuestCompletionsRepository = pmQuestCompletionsRepository;
     }
 
     /**
@@ -202,6 +208,11 @@ public class PmQuestionnairesResource {
     @Timed
     public ResponseEntity<Void> deletePmQuestionnaires(@PathVariable Long id) {
         log.debug("REST request to delete PmQuestionnaires : {}", id);
+        List<PmQuestCompletions> pmQuestCompletions = pmQuestCompletionsRepository.findAllByIdQuestionnaireId(id);
+        if (pmQuestCompletions.size() > 0) {
+            throw new BadRequestAlertException("You cannot delete a questionnaire that has Quest Completions associated with it",
+                ENTITY_NAME, "cannotdeletequestionnaire");
+        }
         pmQuestionnairesRepository.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }

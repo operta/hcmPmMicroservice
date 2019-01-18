@@ -2,6 +2,8 @@ package com.infostudio.ba.domain;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -37,6 +39,7 @@ public class PmQuestQuestions extends AbstractAuditingEntity implements Serializ
 
     @NotNull
     @Column(name = "id_questionnaire", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Long idQuestionnaire;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
