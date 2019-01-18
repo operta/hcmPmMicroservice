@@ -3,7 +3,9 @@ package com.infostudio.ba.web.rest;
 import com.codahale.metrics.annotation.Timed;
 import com.infostudio.ba.domain.PmQuestQuestions;
 
+import com.infostudio.ba.domain.PmQuestionnaires;
 import com.infostudio.ba.repository.PmQuestQuestionsRepository;
+import com.infostudio.ba.repository.PmQuestionnairesRepository;
 import com.infostudio.ba.web.rest.errors.BadRequestAlertException;
 import com.infostudio.ba.web.rest.util.HeaderUtil;
 import com.infostudio.ba.web.rest.util.PaginationUtil;
@@ -41,9 +43,13 @@ public class PmQuestQuestionsResource {
 
     private final PmQuestQuestionsMapper pmQuestQuestionsMapper;
 
-    public PmQuestQuestionsResource(PmQuestQuestionsRepository pmQuestQuestionsRepository, PmQuestQuestionsMapper pmQuestQuestionsMapper) {
+    private final PmQuestionnairesRepository pmQuestionnairesRepository;
+
+    public PmQuestQuestionsResource(PmQuestQuestionsRepository pmQuestQuestionsRepository, PmQuestQuestionsMapper pmQuestQuestionsMapper,
+                                    PmQuestionnairesRepository pmQuestionnairesRepository) {
         this.pmQuestQuestionsRepository = pmQuestQuestionsRepository;
         this.pmQuestQuestionsMapper = pmQuestQuestionsMapper;
+        this.pmQuestionnairesRepository = pmQuestionnairesRepository;
     }
 
     /**
@@ -105,6 +111,22 @@ public class PmQuestQuestionsResource {
         Page<PmQuestQuestions> page = pmQuestQuestionsRepository.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/pm-quest-questions");
         return new ResponseEntity<>(pmQuestQuestionsMapper.toDto(page.getContent()), headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/pm-quest-questions/questionnaire/{id}")
+    @Timed
+    public ResponseEntity<List<PmQuestQuestionsDTO>> getAllPmQuestQuestionsByQuestionnaire(@PathVariable Long id) {
+        log.debug("REST request to get all PmQuestQuestions by Questionnaire id: {}", id);
+
+        PmQuestionnaires pmQuestionnaires = pmQuestionnairesRepository.findOne(id);
+        if (pmQuestionnaires == null) {
+            throw new BadRequestAlertException("PmQuestionnaire with id " + id + " does not exist",
+                ENTITY_NAME, "questionnairedoesnotexist");
+        }
+        List<PmQuestQuestions> questionsEntities = pmQuestQuestionsRepository.findAllByIdQuestionnaire(id);
+        List<PmQuestQuestionsDTO> outputToClient = pmQuestQuestionsMapper.toDto(questionsEntities);
+
+        return ResponseEntity.ok(outputToClient);
     }
 
     /**
