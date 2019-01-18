@@ -2,6 +2,8 @@ package com.infostudio.ba.domain;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -65,6 +67,7 @@ public class PmQuestComplAnswers extends AbstractAuditingEntity implements Seria
 
     @ManyToOne
     @JoinColumn(name = "id_questionnaire_completion")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private PmQuestCompletions idQuestionnaireCompletion;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
