@@ -3,7 +3,9 @@ package com.infostudio.ba.web.rest;
 import com.codahale.metrics.annotation.Timed;
 import com.infostudio.ba.domain.PmEmployeesGoals;
 
+import com.infostudio.ba.domain.PmGoalStates;
 import com.infostudio.ba.repository.PmEmployeesGoalsRepository;
+import com.infostudio.ba.repository.PmGoalStatesRepository;
 import com.infostudio.ba.web.rest.errors.BadRequestAlertException;
 import com.infostudio.ba.web.rest.util.HeaderUtil;
 import com.infostudio.ba.web.rest.util.PaginationUtil;
@@ -23,6 +25,7 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,9 +44,13 @@ public class PmEmployeesGoalsResource {
 
     private final PmEmployeesGoalsMapper pmEmployeesGoalsMapper;
 
-    public PmEmployeesGoalsResource(PmEmployeesGoalsRepository pmEmployeesGoalsRepository, PmEmployeesGoalsMapper pmEmployeesGoalsMapper) {
+    private final PmGoalStatesRepository pmGoalStatesRepository;
+
+    public PmEmployeesGoalsResource(PmEmployeesGoalsRepository pmEmployeesGoalsRepository, PmEmployeesGoalsMapper pmEmployeesGoalsMapper,
+                                    PmGoalStatesRepository pmGoalStatesRepository) {
         this.pmEmployeesGoalsRepository = pmEmployeesGoalsRepository;
         this.pmEmployeesGoalsMapper = pmEmployeesGoalsMapper;
+        this.pmGoalStatesRepository = pmGoalStatesRepository;
     }
 
     /**
@@ -83,6 +90,20 @@ public class PmEmployeesGoalsResource {
         log.debug("REST request to update PmEmployeesGoals : {}", pmEmployeesGoalsDTO);
         if (pmEmployeesGoalsDTO.getId() == null) {
             return createPmEmployeesGoals(pmEmployeesGoalsDTO);
+        }
+        PmEmployeesGoals employeeGoalFromDB = pmEmployeesGoalsRepository.findOne(pmEmployeesGoalsDTO.getId());
+        if (employeeGoalFromDB == null) {
+            throw new BadRequestAlertException("Employee goal with id " + pmEmployeesGoalsDTO.getId() + " does not exist",
+                ENTITY_NAME, "employeegoaldoesnotexist");
+        }
+        PmGoalStates goalStateFromDB = pmGoalStatesRepository.findOne(pmEmployeesGoalsDTO.getIdGoalStateId());
+        if (goalStateFromDB == null) {
+            throw new BadRequestAlertException("Goal state with id " + pmEmployeesGoalsDTO.getIdGoalStateId() + "does not exist",
+                ENTITY_NAME, "goalstatedoesnotexist");
+        }
+        if (!pmEmployeesGoalsDTO.getIdGoalStateId().equals(employeeGoalFromDB.getIdGoalState().getId())) {
+            pmEmployeesGoalsDTO.setStateDate(LocalDate.now());
+            log.debug("I AM HERE");
         }
         PmEmployeesGoals pmEmployeesGoals = pmEmployeesGoalsMapper.toEntity(pmEmployeesGoalsDTO);
         pmEmployeesGoals = pmEmployeesGoalsRepository.save(pmEmployeesGoals);

@@ -45,14 +45,17 @@ public class PmEmployeesGoalsDTO implements Serializable {
 
     private String description;
 
+    @NotNull
     private Long idUnitId;
 
     private String idUnitName;
 
+    @NotNull
     private Long idGoalStateId;
 
     private String idGoalStateName;
 
+    @NotNull
     private Long idGoalId;
 
     private String createdBy;
