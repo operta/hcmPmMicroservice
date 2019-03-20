@@ -1,6 +1,7 @@
 package com.infostudio.ba.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import com.infostudio.ba.domain.Action;
 import com.infostudio.ba.domain.PmGoalEvalQstCompl;
 import com.infostudio.ba.domain.PmGoalsEvaluations;
 import com.infostudio.ba.domain.PmQuestCompletions;
@@ -10,6 +11,7 @@ import com.infostudio.ba.repository.PmGoalsEvaluationsRepository;
 import com.infostudio.ba.repository.PmQuestCompletionsRepository;
 import com.infostudio.ba.service.mapper.PmGoalEvalQstComplMapper;
 import com.infostudio.ba.web.rest.errors.BadRequestAlertException;
+import com.infostudio.ba.web.rest.util.AuditUtil;
 import com.infostudio.ba.web.rest.util.HeaderUtil;
 import com.infostudio.ba.web.rest.util.PaginationUtil;
 import com.infostudio.ba.service.dto.PmQuestCompletionsDTO;
@@ -17,6 +19,7 @@ import com.infostudio.ba.service.mapper.PmQuestCompletionsMapper;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -50,12 +53,18 @@ public class PmQuestCompletionsResource {
 
     private final PmGoalsEvaluationsRepository pmGoalsEvaluationsRepository;
 
-    public PmQuestCompletionsResource(PmQuestCompletionsRepository pmQuestCompletionsRepository, PmQuestCompletionsMapper pmQuestCompletionsMapper,
-                                      PmGoalEvalQstComplRepository pmGoalEvalQstComplRepository, PmGoalsEvaluationsRepository pmGoalsEvaluationsRepository) {
+    private final ApplicationEventPublisher applicationEventPublisher;
+
+    public PmQuestCompletionsResource(PmQuestCompletionsRepository pmQuestCompletionsRepository,
+                                      PmQuestCompletionsMapper pmQuestCompletionsMapper,
+                                      PmGoalEvalQstComplRepository pmGoalEvalQstComplRepository,
+                                      PmGoalsEvaluationsRepository pmGoalsEvaluationsRepository,
+                                      ApplicationEventPublisher applicationEventPublisher) {
         this.pmQuestCompletionsRepository = pmQuestCompletionsRepository;
         this.pmQuestCompletionsMapper = pmQuestCompletionsMapper;
         this.pmGoalEvalQstComplRepository = pmGoalEvalQstComplRepository;
         this.pmGoalsEvaluationsRepository = pmGoalsEvaluationsRepository;
+        this.applicationEventPublisher = applicationEventPublisher;
 
     }
 
@@ -67,6 +76,15 @@ public class PmQuestCompletionsResource {
         PmQuestCompletions pmQuestCompletions = pmQuestCompletionsMapper.toEntity(pmQuestCompletionsDTO);
         pmQuestCompletions = pmQuestCompletionsRepository.save(pmQuestCompletions);
         PmQuestCompletionsDTO result = pmQuestCompletionsMapper.toDto(pmQuestCompletions);
+        applicationEventPublisher.publishEvent(
+            AuditUtil.createAuditEvent(
+                result.getCreatedBy(),
+                "performance",
+                ENTITY_NAME,
+                result.getId().toString(),
+                Action.POST
+            )
+        );
         return result;
     }
 
@@ -129,6 +147,15 @@ public class PmQuestCompletionsResource {
         PmQuestCompletions pmQuestCompletions = pmQuestCompletionsMapper.toEntity(pmQuestCompletionsDTO);
         pmQuestCompletions = pmQuestCompletionsRepository.save(pmQuestCompletions);
         PmQuestCompletionsDTO result = pmQuestCompletionsMapper.toDto(pmQuestCompletions);
+        applicationEventPublisher.publishEvent(
+            AuditUtil.createAuditEvent(
+                result.getUpdatedBy(),
+                "performance",
+                ENTITY_NAME,
+                result.getId().toString(),
+                Action.PUT
+            )
+        );
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, pmQuestCompletionsDTO.getId().toString()))
             .body(result);
@@ -174,7 +201,18 @@ public class PmQuestCompletionsResource {
     @Timed
     public ResponseEntity<Void> deletePmQuestCompletions(@PathVariable Long id) {
         log.debug("REST request to delete PmQuestCompletions : {}", id);
+        PmQuestCompletions questCompletion = pmQuestCompletionsRepository.findOne(id);
+        PmQuestCompletionsDTO questCompletionsDTO = pmQuestCompletionsMapper.toDto(questCompletion);
         pmQuestCompletionsRepository.delete(id);
+        applicationEventPublisher.publishEvent(
+            AuditUtil.createAuditEvent(
+                questCompletionsDTO.getUpdatedBy(),
+                "performance",
+                ENTITY_NAME,
+                id.toString(),
+                Action.DELETE
+            )
+        );
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }
 }

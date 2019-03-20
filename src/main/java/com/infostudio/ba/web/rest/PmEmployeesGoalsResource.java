@@ -1,12 +1,14 @@
 package com.infostudio.ba.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import com.infostudio.ba.domain.Action;
 import com.infostudio.ba.domain.PmEmployeesGoals;
 
 import com.infostudio.ba.domain.PmGoalStates;
 import com.infostudio.ba.repository.PmEmployeesGoalsRepository;
 import com.infostudio.ba.repository.PmGoalStatesRepository;
 import com.infostudio.ba.web.rest.errors.BadRequestAlertException;
+import com.infostudio.ba.web.rest.util.AuditUtil;
 import com.infostudio.ba.web.rest.util.HeaderUtil;
 import com.infostudio.ba.web.rest.util.PaginationUtil;
 import com.infostudio.ba.service.dto.PmEmployeesGoalsDTO;
@@ -14,6 +16,7 @@ import com.infostudio.ba.service.mapper.PmEmployeesGoalsMapper;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -46,11 +49,16 @@ public class PmEmployeesGoalsResource {
 
     private final PmGoalStatesRepository pmGoalStatesRepository;
 
-    public PmEmployeesGoalsResource(PmEmployeesGoalsRepository pmEmployeesGoalsRepository, PmEmployeesGoalsMapper pmEmployeesGoalsMapper,
-                                    PmGoalStatesRepository pmGoalStatesRepository) {
+    private final ApplicationEventPublisher applicationEventPublisher;
+
+    public PmEmployeesGoalsResource(PmEmployeesGoalsRepository pmEmployeesGoalsRepository,
+                                    PmEmployeesGoalsMapper pmEmployeesGoalsMapper,
+                                    PmGoalStatesRepository pmGoalStatesRepository,
+                                    ApplicationEventPublisher applicationEventPublisher) {
         this.pmEmployeesGoalsRepository = pmEmployeesGoalsRepository;
         this.pmEmployeesGoalsMapper = pmEmployeesGoalsMapper;
         this.pmGoalStatesRepository = pmGoalStatesRepository;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     /**
@@ -70,6 +78,24 @@ public class PmEmployeesGoalsResource {
         PmEmployeesGoals pmEmployeesGoals = pmEmployeesGoalsMapper.toEntity(pmEmployeesGoalsDTO);
         pmEmployeesGoals = pmEmployeesGoalsRepository.save(pmEmployeesGoals);
         PmEmployeesGoalsDTO result = pmEmployeesGoalsMapper.toDto(pmEmployeesGoals);
+        applicationEventPublisher.publishEvent(
+            AuditUtil.createAuditEvent(
+                result.getCreatedBy(),
+                "performance",
+                ENTITY_NAME,
+                result.getId().toString(),
+                Action.POST
+            )
+        );
+        applicationEventPublisher.publishEvent(
+            AuditUtil.createAuditEvent(
+                pmEmployeesGoals.getIdEmployeeResponsible().toString(),
+                "employee",
+                ENTITY_NAME,
+                result.getId().toString(),
+                Action.POST
+            )
+        );
         return ResponseEntity.created(new URI("/api/pm-employees-goals/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -108,6 +134,25 @@ public class PmEmployeesGoalsResource {
         PmEmployeesGoals pmEmployeesGoals = pmEmployeesGoalsMapper.toEntity(pmEmployeesGoalsDTO);
         pmEmployeesGoals = pmEmployeesGoalsRepository.save(pmEmployeesGoals);
         PmEmployeesGoalsDTO result = pmEmployeesGoalsMapper.toDto(pmEmployeesGoals);
+        applicationEventPublisher.publishEvent(
+            AuditUtil.createAuditEvent(
+                result.getUpdatedBy(),
+                "performance",
+                ENTITY_NAME,
+                result.getId().toString(),
+                Action.PUT
+            )
+        );
+
+        applicationEventPublisher.publishEvent(
+            AuditUtil.createAuditEvent(
+                pmEmployeesGoals.getIdEmployeeResponsible().toString(),
+                "employee",
+                ENTITY_NAME,
+                result.getId().toString(),
+                Action.PUT
+            )
+        );
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, pmEmployeesGoalsDTO.getId().toString()))
             .body(result);
@@ -162,7 +207,27 @@ public class PmEmployeesGoalsResource {
     @Timed
     public ResponseEntity<Void> deletePmEmployeesGoals(@PathVariable Long id) {
         log.debug("REST request to delete PmEmployeesGoals : {}", id);
+        PmEmployeesGoals employeesGoal = pmEmployeesGoalsRepository.findOne(id);
+        PmEmployeesGoalsDTO employeesGoalsDTO = pmEmployeesGoalsMapper.toDto(employeesGoal);
         pmEmployeesGoalsRepository.delete(id);
+        applicationEventPublisher.publishEvent(
+            AuditUtil.createAuditEvent(
+                employeesGoalsDTO.getUpdatedBy(),
+                "performance",
+                ENTITY_NAME,
+                id.toString(),
+                Action.DELETE
+            )
+        );
+        applicationEventPublisher.publishEvent(
+            AuditUtil.createAuditEvent(
+                employeesGoal.getIdEmployeeResponsible().toString(),
+                "employee",
+                ENTITY_NAME,
+                id.toString(),
+                Action.DELETE
+            )
+        );
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }
 }

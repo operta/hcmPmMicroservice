@@ -3,6 +3,7 @@ package com.infostudio.ba.web.rest;
 import com.codahale.metrics.annotation.Timed;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.instance.HazelcastInstanceFactory;
+import com.infostudio.ba.domain.Action;
 import com.infostudio.ba.domain.PmQuestCompletions;
 import com.infostudio.ba.domain.PmQuestQuestions;
 import com.infostudio.ba.domain.PmQuestionnaires;
@@ -15,6 +16,7 @@ import com.infostudio.ba.service.dto.PmQuestQuestionsDTO;
 import com.infostudio.ba.service.helper.model.PmQuestionnairesComposition;
 import com.infostudio.ba.service.mapper.PmQuestQuestionsMapper;
 import com.infostudio.ba.web.rest.errors.BadRequestAlertException;
+import com.infostudio.ba.web.rest.util.AuditUtil;
 import com.infostudio.ba.web.rest.util.HeaderUtil;
 import com.infostudio.ba.web.rest.util.PaginationUtil;
 import com.infostudio.ba.service.dto.PmQuestionnairesDTO;
@@ -22,6 +24,7 @@ import com.infostudio.ba.service.mapper.PmQuestionnairesMapper;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -59,14 +62,18 @@ public class PmQuestionnairesResource {
 
     private final PmQuestCompletionsRepository pmQuestCompletionsRepository;
 
+    private final ApplicationEventPublisher applicationEventPublisher;
+
     public PmQuestionnairesResource(PmQuestionnairesRepository pmQuestionnairesRepository, PmQuestionnairesMapper pmQuestionnairesMapper,
                                     PmQuestQuestionsMapper pmQuestQuestionsMapper, PmQuestQuestionsRepository pmQuestQuestionsRepository,
-                                    PmQuestCompletionsRepository pmQuestCompletionsRepository) {
+                                    PmQuestCompletionsRepository pmQuestCompletionsRepository,
+                                    ApplicationEventPublisher applicationEventPublisher) {
         this.pmQuestionnairesRepository = pmQuestionnairesRepository;
         this.pmQuestionnairesMapper = pmQuestionnairesMapper;
         this.pmQuestQuestionsMapper = pmQuestQuestionsMapper;
         this.pmQuestQuestionsRepository = pmQuestQuestionsRepository;
         this.pmQuestCompletionsRepository = pmQuestCompletionsRepository;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     /**
@@ -86,6 +93,15 @@ public class PmQuestionnairesResource {
         PmQuestionnaires pmQuestionnaires = pmQuestionnairesMapper.toEntity(pmQuestionnairesDTO);
         pmQuestionnaires = pmQuestionnairesRepository.save(pmQuestionnaires);
         PmQuestionnairesDTO result = pmQuestionnairesMapper.toDto(pmQuestionnaires);
+        applicationEventPublisher.publishEvent(
+            AuditUtil.createAuditEvent(
+                result.getCreatedBy(),
+                "performance",
+                ENTITY_NAME,
+                result.getId().toString(),
+                Action.POST
+            )
+        );
         return ResponseEntity.created(new URI("/api/pm-questionnaires/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -116,6 +132,16 @@ public class PmQuestionnairesResource {
         PmQuestionnaires questionnaireEntity = pmQuestionnairesMapper.toEntity(questionnaire);
         questionnaireEntity = pmQuestionnairesRepository.save(questionnaireEntity);
         questionnaire = pmQuestionnairesMapper.toDto(questionnaireEntity);
+
+        applicationEventPublisher.publishEvent(
+            AuditUtil.createAuditEvent(
+                questionnaire.getCreatedBy(),
+                "performance",
+                ENTITY_NAME,
+                questionnaire.getId().toString(),
+                Action.POST
+            )
+        );
 
         final PmQuestionnairesDTO finalQuestionnaire = questionnaire;
         List<PmQuestQuestionsDTO> questions = pmQuestionnairesComposition.getQuestions().stream()
@@ -154,6 +180,15 @@ public class PmQuestionnairesResource {
         PmQuestionnaires pmQuestionnaires = pmQuestionnairesMapper.toEntity(pmQuestionnairesDTO);
         pmQuestionnaires = pmQuestionnairesRepository.save(pmQuestionnaires);
         PmQuestionnairesDTO result = pmQuestionnairesMapper.toDto(pmQuestionnaires);
+        applicationEventPublisher.publishEvent(
+            AuditUtil.createAuditEvent(
+                result.getUpdatedBy(),
+                "performance",
+                ENTITY_NAME,
+                result.getId().toString(),
+                Action.PUT
+            )
+        );
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, pmQuestionnairesDTO.getId().toString()))
             .body(result);
@@ -213,7 +248,18 @@ public class PmQuestionnairesResource {
             throw new BadRequestAlertException("You cannot delete a questionnaire that has Quest Completions associated with it",
                 ENTITY_NAME, "cannotdeletequestionnaire");
         }
+        PmQuestionnaires questionnaire = pmQuestionnairesRepository.findOne(id);
+        PmQuestionnairesDTO questionnairesDTO = pmQuestionnairesMapper.toDto(questionnaire);
         pmQuestionnairesRepository.delete(id);
+        applicationEventPublisher.publishEvent(
+            AuditUtil.createAuditEvent(
+                questionnairesDTO.getUpdatedBy(),
+                "performance",
+                ENTITY_NAME,
+                id.toString(),
+                Action.DELETE
+            )
+        );
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }
 }

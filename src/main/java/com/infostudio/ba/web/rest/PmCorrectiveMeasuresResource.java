@@ -1,10 +1,12 @@
 package com.infostudio.ba.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import com.infostudio.ba.domain.Action;
 import com.infostudio.ba.domain.PmCorrectiveMeasures;
 
 import com.infostudio.ba.repository.PmCorrectiveMeasuresRepository;
 import com.infostudio.ba.web.rest.errors.BadRequestAlertException;
+import com.infostudio.ba.web.rest.util.AuditUtil;
 import com.infostudio.ba.web.rest.util.HeaderUtil;
 import com.infostudio.ba.web.rest.util.PaginationUtil;
 import com.infostudio.ba.service.dto.PmCorrectiveMeasuresDTO;
@@ -12,6 +14,7 @@ import com.infostudio.ba.service.mapper.PmCorrectiveMeasuresMapper;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -41,9 +44,15 @@ public class PmCorrectiveMeasuresResource {
 
     private final PmCorrectiveMeasuresMapper pmCorrectiveMeasuresMapper;
 
-    public PmCorrectiveMeasuresResource(PmCorrectiveMeasuresRepository pmCorrectiveMeasuresRepository, PmCorrectiveMeasuresMapper pmCorrectiveMeasuresMapper) {
+    private final ApplicationEventPublisher applicationEventPublisher;
+
+    public PmCorrectiveMeasuresResource(PmCorrectiveMeasuresRepository pmCorrectiveMeasuresRepository,
+                                        PmCorrectiveMeasuresMapper pmCorrectiveMeasuresMapper,
+                                        ApplicationEventPublisher applicationEventPublisher
+                                        ) {
         this.pmCorrectiveMeasuresRepository = pmCorrectiveMeasuresRepository;
         this.pmCorrectiveMeasuresMapper = pmCorrectiveMeasuresMapper;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     /**
@@ -63,6 +72,15 @@ public class PmCorrectiveMeasuresResource {
         PmCorrectiveMeasures pmCorrectiveMeasures = pmCorrectiveMeasuresMapper.toEntity(pmCorrectiveMeasuresDTO);
         pmCorrectiveMeasures = pmCorrectiveMeasuresRepository.save(pmCorrectiveMeasures);
         PmCorrectiveMeasuresDTO result = pmCorrectiveMeasuresMapper.toDto(pmCorrectiveMeasures);
+        applicationEventPublisher.publishEvent(
+            AuditUtil.createAuditEvent(
+                result.getCreatedBy(),
+                "performance",
+                ENTITY_NAME,
+                result.getId().toString(),
+                Action.POST
+            )
+        );
         return ResponseEntity.created(new URI("/api/pm-corrective-measures/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -87,6 +105,15 @@ public class PmCorrectiveMeasuresResource {
         PmCorrectiveMeasures pmCorrectiveMeasures = pmCorrectiveMeasuresMapper.toEntity(pmCorrectiveMeasuresDTO);
         pmCorrectiveMeasures = pmCorrectiveMeasuresRepository.save(pmCorrectiveMeasures);
         PmCorrectiveMeasuresDTO result = pmCorrectiveMeasuresMapper.toDto(pmCorrectiveMeasures);
+        applicationEventPublisher.publishEvent(
+            AuditUtil.createAuditEvent(
+                result.getUpdatedBy(),
+                "performance",
+                ENTITY_NAME,
+                result.getId().toString(),
+                Action.PUT
+            )
+        );
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, pmCorrectiveMeasuresDTO.getId().toString()))
             .body(result);
@@ -146,7 +173,18 @@ public class PmCorrectiveMeasuresResource {
     @Timed
     public ResponseEntity<Void> deletePmCorrectiveMeasures(@PathVariable Long id) {
         log.debug("REST request to delete PmCorrectiveMeasures : {}", id);
+        PmCorrectiveMeasures correctiveMeasure = pmCorrectiveMeasuresRepository.findOne(id);
+        PmCorrectiveMeasuresDTO correctiveMeasureDTO = pmCorrectiveMeasuresMapper.toDto(correctiveMeasure);
         pmCorrectiveMeasuresRepository.delete(id);
+        applicationEventPublisher.publishEvent(
+            AuditUtil.createAuditEvent(
+                correctiveMeasureDTO.getUpdatedBy(),
+                "performance",
+                ENTITY_NAME,
+                id.toString(),
+                Action.DELETE
+            )
+        );
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }
 }

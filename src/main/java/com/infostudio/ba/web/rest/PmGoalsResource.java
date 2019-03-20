@@ -1,6 +1,8 @@
 package com.infostudio.ba.web.rest;
 
+import com.infostudio.ba.domain.Action;
 import com.infostudio.ba.repository.*;
+import com.infostudio.ba.web.rest.util.AuditUtil;
 import org.apache.commons.lang.RandomStringUtils;
 
 import com.codahale.metrics.annotation.Timed;
@@ -14,6 +16,7 @@ import com.infostudio.ba.service.mapper.PmGoalsMapper;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -46,9 +49,14 @@ public class PmGoalsResource {
 
     private final PmGoalsMapper pmGoalsMapper;
 
-    public PmGoalsResource(PmGoalsRepository pmGoalsRepository, PmGoalsMapper pmGoalsMapper) {
+    private final ApplicationEventPublisher applicationEventPublisher;
+
+    public PmGoalsResource(PmGoalsRepository pmGoalsRepository,
+                           PmGoalsMapper pmGoalsMapper,
+                           ApplicationEventPublisher applicationEventPublisher) {
         this.pmGoalsRepository = pmGoalsRepository;
         this.pmGoalsMapper = pmGoalsMapper;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     /**
@@ -74,6 +82,15 @@ public class PmGoalsResource {
         PmGoals pmGoals = pmGoalsMapper.toEntity(pmGoalsDTO);
         pmGoals = pmGoalsRepository.save(pmGoals);
         PmGoalsDTO result = pmGoalsMapper.toDto(pmGoals);
+        applicationEventPublisher.publishEvent(
+            AuditUtil.createAuditEvent(
+                result.getCreatedBy(),
+                "performance",
+                ENTITY_NAME,
+                result.getId().toString(),
+                Action.POST
+            )
+        );
         return ResponseEntity.created(new URI("/api/pm-goals/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -101,13 +118,32 @@ public class PmGoalsResource {
                 ENTITY_NAME, "pmgoaldoesnotexist");
         }
         if (!pmGoalFromDB.getArchived().equals(pmGoalsDTO.getArchived())) {
-            pmGoalsRepository.save(pmGoalsMapper.toEntity(pmGoalsDTO));
+            PmGoals savedGoal = pmGoalsRepository.save(pmGoalsMapper.toEntity(pmGoalsDTO));
+            PmGoalsDTO goalsDTO = pmGoalsMapper.toDto(savedGoal);
+            applicationEventPublisher.publishEvent(
+                AuditUtil.createAuditEvent(
+                    goalsDTO.getUpdatedBy(),
+                    "performance",
+                    ENTITY_NAME,
+                    savedGoal.getId().toString(),
+                    Action.ARCHIVE
+                )
+            );
             updateAllChildPmGoals(pmGoalsDTO.getId(), pmGoalsDTO.getArchived());
             return ResponseEntity.ok(pmGoalsDTO);
         }
         PmGoals pmGoals = pmGoalsMapper.toEntity(pmGoalsDTO);
         pmGoals = pmGoalsRepository.save(pmGoals);
         PmGoalsDTO result = pmGoalsMapper.toDto(pmGoals);
+        applicationEventPublisher.publishEvent(
+            AuditUtil.createAuditEvent(
+                result.getUpdatedBy(),
+                "performance",
+                ENTITY_NAME,
+                result.getId().toString(),
+                Action.PUT
+            )
+        );
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, pmGoalsDTO.getId().toString()))
             .body(result);
@@ -223,7 +259,18 @@ public class PmGoalsResource {
     @Timed
     public ResponseEntity<Void> deletePmGoals(@PathVariable Long id) {
         log.debug("REST request to delete PmGoals : {}", id);
+        PmGoals goal = pmGoalsRepository.findOne(id);
+        PmGoalsDTO goalsDTO = pmGoalsMapper.toDto(goal);
         pmGoalsRepository.delete(id);
+        applicationEventPublisher.publishEvent(
+            AuditUtil.createAuditEvent(
+                goalsDTO.getUpdatedBy(),
+                "performance",
+                ENTITY_NAME,
+                id.toString(),
+                Action.DELETE
+            )
+        );
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }
 }

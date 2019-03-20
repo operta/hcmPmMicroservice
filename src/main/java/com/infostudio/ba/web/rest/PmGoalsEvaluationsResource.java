@@ -1,10 +1,12 @@
 package com.infostudio.ba.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import com.infostudio.ba.domain.Action;
 import com.infostudio.ba.domain.PmGoalsEvaluations;
 
 import com.infostudio.ba.repository.PmGoalsEvaluationsRepository;
 import com.infostudio.ba.web.rest.errors.BadRequestAlertException;
+import com.infostudio.ba.web.rest.util.AuditUtil;
 import com.infostudio.ba.web.rest.util.HeaderUtil;
 import com.infostudio.ba.web.rest.util.PaginationUtil;
 import com.infostudio.ba.service.dto.PmGoalsEvaluationsDTO;
@@ -12,6 +14,7 @@ import com.infostudio.ba.service.mapper.PmGoalsEvaluationsMapper;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -41,9 +44,14 @@ public class PmGoalsEvaluationsResource {
 
     private final PmGoalsEvaluationsMapper pmGoalsEvaluationsMapper;
 
-    public PmGoalsEvaluationsResource(PmGoalsEvaluationsRepository pmGoalsEvaluationsRepository, PmGoalsEvaluationsMapper pmGoalsEvaluationsMapper) {
+    private final ApplicationEventPublisher applicationEventPublisher;
+
+    public PmGoalsEvaluationsResource(PmGoalsEvaluationsRepository pmGoalsEvaluationsRepository,
+                                      PmGoalsEvaluationsMapper pmGoalsEvaluationsMapper,
+                                      ApplicationEventPublisher applicationEventPublisher) {
         this.pmGoalsEvaluationsRepository = pmGoalsEvaluationsRepository;
         this.pmGoalsEvaluationsMapper = pmGoalsEvaluationsMapper;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     /**
@@ -63,6 +71,15 @@ public class PmGoalsEvaluationsResource {
         PmGoalsEvaluations pmGoalsEvaluations = pmGoalsEvaluationsMapper.toEntity(pmGoalsEvaluationsDTO);
         pmGoalsEvaluations = pmGoalsEvaluationsRepository.save(pmGoalsEvaluations);
         PmGoalsEvaluationsDTO result = pmGoalsEvaluationsMapper.toDto(pmGoalsEvaluations);
+        applicationEventPublisher.publishEvent(
+            AuditUtil.createAuditEvent(
+                result.getCreatedBy(),
+                "performance",
+                ENTITY_NAME,
+                result.getId().toString(),
+                Action.POST
+            )
+        );
         return ResponseEntity.created(new URI("/api/pm-goals-evaluations/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -87,6 +104,15 @@ public class PmGoalsEvaluationsResource {
         PmGoalsEvaluations pmGoalsEvaluations = pmGoalsEvaluationsMapper.toEntity(pmGoalsEvaluationsDTO);
         pmGoalsEvaluations = pmGoalsEvaluationsRepository.save(pmGoalsEvaluations);
         PmGoalsEvaluationsDTO result = pmGoalsEvaluationsMapper.toDto(pmGoalsEvaluations);
+        applicationEventPublisher.publishEvent(
+            AuditUtil.createAuditEvent(
+                result.getUpdatedBy(),
+                "performance",
+                ENTITY_NAME,
+                result.getId().toString(),
+                Action.PUT
+            )
+        );
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, pmGoalsEvaluationsDTO.getId().toString()))
             .body(result);
@@ -145,7 +171,18 @@ public class PmGoalsEvaluationsResource {
     @Timed
     public ResponseEntity<Void> deletePmGoalsEvaluations(@PathVariable Long id) {
         log.debug("REST request to delete PmGoalsEvaluations : {}", id);
+        PmGoalsEvaluations goalsEvaluation = pmGoalsEvaluationsRepository.findOne(id);
+        PmGoalsEvaluationsDTO goalsEvaluationsDTO = pmGoalsEvaluationsMapper.toDto(goalsEvaluation);
         pmGoalsEvaluationsRepository.delete(id);
+        applicationEventPublisher.publishEvent(
+            AuditUtil.createAuditEvent(
+                goalsEvaluationsDTO.getUpdatedBy(),
+                "performance",
+                ENTITY_NAME,
+                id.toString(),
+                Action.DELETE
+            )
+        );
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }
 }
