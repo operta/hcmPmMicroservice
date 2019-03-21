@@ -84,8 +84,6 @@ public class PmGoalsResource {
         PmGoalsDTO result = pmGoalsMapper.toDto(pmGoals);
         applicationEventPublisher.publishEvent(
             AuditUtil.createAuditEvent(
-                result.getCreatedBy(),
-                "performance",
                 ENTITY_NAME,
                 result.getId().toString(),
                 Action.POST
@@ -119,14 +117,11 @@ public class PmGoalsResource {
         }
         if (!pmGoalFromDB.getArchived().equals(pmGoalsDTO.getArchived())) {
             PmGoals savedGoal = pmGoalsRepository.save(pmGoalsMapper.toEntity(pmGoalsDTO));
-            PmGoalsDTO goalsDTO = pmGoalsMapper.toDto(savedGoal);
             applicationEventPublisher.publishEvent(
                 AuditUtil.createAuditEvent(
-                    goalsDTO.getUpdatedBy(),
-                    "performance",
                     ENTITY_NAME,
                     savedGoal.getId().toString(),
-                    Action.ARCHIVE
+                    Action.DELETE
                 )
             );
             updateAllChildPmGoals(pmGoalsDTO.getId(), pmGoalsDTO.getArchived());
@@ -137,8 +132,6 @@ public class PmGoalsResource {
         PmGoalsDTO result = pmGoalsMapper.toDto(pmGoals);
         applicationEventPublisher.publishEvent(
             AuditUtil.createAuditEvent(
-                result.getUpdatedBy(),
-                "performance",
                 ENTITY_NAME,
                 result.getId().toString(),
                 Action.PUT
@@ -259,13 +252,9 @@ public class PmGoalsResource {
     @Timed
     public ResponseEntity<Void> deletePmGoals(@PathVariable Long id) {
         log.debug("REST request to delete PmGoals : {}", id);
-        PmGoals goal = pmGoalsRepository.findOne(id);
-        PmGoalsDTO goalsDTO = pmGoalsMapper.toDto(goal);
         pmGoalsRepository.delete(id);
         applicationEventPublisher.publishEvent(
             AuditUtil.createAuditEvent(
-                goalsDTO.getUpdatedBy(),
-                "performance",
                 ENTITY_NAME,
                 id.toString(),
                 Action.DELETE

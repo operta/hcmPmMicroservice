@@ -74,8 +74,6 @@ public class PmCorrectiveMeasuresResource {
         PmCorrectiveMeasuresDTO result = pmCorrectiveMeasuresMapper.toDto(pmCorrectiveMeasures);
         applicationEventPublisher.publishEvent(
             AuditUtil.createAuditEvent(
-                result.getCreatedBy(),
-                "performance",
                 ENTITY_NAME,
                 result.getId().toString(),
                 Action.POST
@@ -107,8 +105,6 @@ public class PmCorrectiveMeasuresResource {
         PmCorrectiveMeasuresDTO result = pmCorrectiveMeasuresMapper.toDto(pmCorrectiveMeasures);
         applicationEventPublisher.publishEvent(
             AuditUtil.createAuditEvent(
-                result.getUpdatedBy(),
-                "performance",
                 ENTITY_NAME,
                 result.getId().toString(),
                 Action.PUT
@@ -173,13 +169,9 @@ public class PmCorrectiveMeasuresResource {
     @Timed
     public ResponseEntity<Void> deletePmCorrectiveMeasures(@PathVariable Long id) {
         log.debug("REST request to delete PmCorrectiveMeasures : {}", id);
-        PmCorrectiveMeasures correctiveMeasure = pmCorrectiveMeasuresRepository.findOne(id);
-        PmCorrectiveMeasuresDTO correctiveMeasureDTO = pmCorrectiveMeasuresMapper.toDto(correctiveMeasure);
         pmCorrectiveMeasuresRepository.delete(id);
         applicationEventPublisher.publishEvent(
             AuditUtil.createAuditEvent(
-                correctiveMeasureDTO.getUpdatedBy(),
-                "performance",
                 ENTITY_NAME,
                 id.toString(),
                 Action.DELETE

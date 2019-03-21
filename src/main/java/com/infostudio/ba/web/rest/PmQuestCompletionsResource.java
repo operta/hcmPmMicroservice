@@ -78,8 +78,6 @@ public class PmQuestCompletionsResource {
         PmQuestCompletionsDTO result = pmQuestCompletionsMapper.toDto(pmQuestCompletions);
         applicationEventPublisher.publishEvent(
             AuditUtil.createAuditEvent(
-                result.getCreatedBy(),
-                "performance",
                 ENTITY_NAME,
                 result.getId().toString(),
                 Action.POST
@@ -149,8 +147,6 @@ public class PmQuestCompletionsResource {
         PmQuestCompletionsDTO result = pmQuestCompletionsMapper.toDto(pmQuestCompletions);
         applicationEventPublisher.publishEvent(
             AuditUtil.createAuditEvent(
-                result.getUpdatedBy(),
-                "performance",
                 ENTITY_NAME,
                 result.getId().toString(),
                 Action.PUT
@@ -201,13 +197,9 @@ public class PmQuestCompletionsResource {
     @Timed
     public ResponseEntity<Void> deletePmQuestCompletions(@PathVariable Long id) {
         log.debug("REST request to delete PmQuestCompletions : {}", id);
-        PmQuestCompletions questCompletion = pmQuestCompletionsRepository.findOne(id);
-        PmQuestCompletionsDTO questCompletionsDTO = pmQuestCompletionsMapper.toDto(questCompletion);
         pmQuestCompletionsRepository.delete(id);
         applicationEventPublisher.publishEvent(
             AuditUtil.createAuditEvent(
-                questCompletionsDTO.getUpdatedBy(),
-                "performance",
                 ENTITY_NAME,
                 id.toString(),
                 Action.DELETE

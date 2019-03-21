@@ -80,8 +80,6 @@ public class PmEmployeesGoalsResource {
         PmEmployeesGoalsDTO result = pmEmployeesGoalsMapper.toDto(pmEmployeesGoals);
         applicationEventPublisher.publishEvent(
             AuditUtil.createAuditEvent(
-                result.getCreatedBy(),
-                "performance",
                 ENTITY_NAME,
                 result.getId().toString(),
                 Action.POST
@@ -136,8 +134,6 @@ public class PmEmployeesGoalsResource {
         PmEmployeesGoalsDTO result = pmEmployeesGoalsMapper.toDto(pmEmployeesGoals);
         applicationEventPublisher.publishEvent(
             AuditUtil.createAuditEvent(
-                result.getUpdatedBy(),
-                "performance",
                 ENTITY_NAME,
                 result.getId().toString(),
                 Action.PUT
@@ -208,12 +204,9 @@ public class PmEmployeesGoalsResource {
     public ResponseEntity<Void> deletePmEmployeesGoals(@PathVariable Long id) {
         log.debug("REST request to delete PmEmployeesGoals : {}", id);
         PmEmployeesGoals employeesGoal = pmEmployeesGoalsRepository.findOne(id);
-        PmEmployeesGoalsDTO employeesGoalsDTO = pmEmployeesGoalsMapper.toDto(employeesGoal);
         pmEmployeesGoalsRepository.delete(id);
         applicationEventPublisher.publishEvent(
             AuditUtil.createAuditEvent(
-                employeesGoalsDTO.getUpdatedBy(),
-                "performance",
                 ENTITY_NAME,
                 id.toString(),
                 Action.DELETE

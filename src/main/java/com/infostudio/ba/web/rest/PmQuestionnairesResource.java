@@ -95,8 +95,6 @@ public class PmQuestionnairesResource {
         PmQuestionnairesDTO result = pmQuestionnairesMapper.toDto(pmQuestionnaires);
         applicationEventPublisher.publishEvent(
             AuditUtil.createAuditEvent(
-                result.getCreatedBy(),
-                "performance",
                 ENTITY_NAME,
                 result.getId().toString(),
                 Action.POST
@@ -135,11 +133,9 @@ public class PmQuestionnairesResource {
 
         applicationEventPublisher.publishEvent(
             AuditUtil.createAuditEvent(
-                questionnaire.getCreatedBy(),
-                "performance",
                 ENTITY_NAME,
                 questionnaire.getId().toString(),
-                Action.POST
+                Action.PUT
             )
         );
 
@@ -182,8 +178,6 @@ public class PmQuestionnairesResource {
         PmQuestionnairesDTO result = pmQuestionnairesMapper.toDto(pmQuestionnaires);
         applicationEventPublisher.publishEvent(
             AuditUtil.createAuditEvent(
-                result.getUpdatedBy(),
-                "performance",
                 ENTITY_NAME,
                 result.getId().toString(),
                 Action.PUT
@@ -248,13 +242,9 @@ public class PmQuestionnairesResource {
             throw new BadRequestAlertException("You cannot delete a questionnaire that has Quest Completions associated with it",
                 ENTITY_NAME, "cannotdeletequestionnaire");
         }
-        PmQuestionnaires questionnaire = pmQuestionnairesRepository.findOne(id);
-        PmQuestionnairesDTO questionnairesDTO = pmQuestionnairesMapper.toDto(questionnaire);
         pmQuestionnairesRepository.delete(id);
         applicationEventPublisher.publishEvent(
             AuditUtil.createAuditEvent(
-                questionnairesDTO.getUpdatedBy(),
-                "performance",
                 ENTITY_NAME,
                 id.toString(),
                 Action.DELETE
