@@ -1,60 +1,96 @@
 package com.infostudio.ba.web.rest.util;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.infostudio.ba.domain.Action;
 import com.infostudio.ba.security.SecurityUtils;
 import org.springframework.boot.actuate.audit.listener.AuditApplicationEvent;
 
+class AuditMessage {
+    private String message;
+    private String param;
+
+    public AuditMessage() {
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public String getParam() {
+        return param;
+    }
+
+    public void setParam(String param) {
+        this.param = param;
+    }
+
+}
+
 public final class AuditUtil {
+
+    private static final String APPLICATION_NAME = "hcmPmMicroserviceApp";
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     private AuditUtil() {
 
     }
 
-    public static AuditApplicationEvent createAuditEvent(String principal, String type, String entityName, String entityId, Action action) {
-        switch (action) {
+    public static AuditMessage createAuditMessage(String entityName, String entityId, Action type) {
+        AuditMessage auditMessage = new AuditMessage();
+        auditMessage.setParam(entityId);
+        switch (type) {
             case POST:
-                return new AuditApplicationEvent(
-                    principal,
-                    type,
-                    "message=" + HeaderUtil.createEntityCreationAlert(entityName, entityId)
-                );
+                auditMessage.setMessage(APPLICATION_NAME + "." + entityName + ".created");
+                break;
             case PUT:
-                return new AuditApplicationEvent(
-                    principal,
-                    type,
-                    "message=" + HeaderUtil.createEntityUpdateAlert(entityName, entityId)
-                );
+                auditMessage.setMessage(APPLICATION_NAME + "." + entityName + ".updated");
+                break;
             case DELETE:
-                return new AuditApplicationEvent(
-                    principal,
-                    type,
-                    "message=" + HeaderUtil.createEntityDeletionAlert(entityName, entityId)
-                );
+                auditMessage.setMessage(APPLICATION_NAME + "." + entityName + ".deleted");
+                break;
         }
-        return null;
+
+        return auditMessage;
+
+    }
+
+    public static AuditApplicationEvent createAuditEvent(String principal, String type, String entityName, String entityId, Action action) {
+        AuditMessage auditMessage = createAuditMessage(entityName, entityId, action);
+        String jsonMessage = "";
+        try {
+            jsonMessage = objectMapper.writeValueAsString(auditMessage);
+        } catch (JsonProcessingException e) {
+            // catch various errors
+            e.printStackTrace();
+        }
+        return new AuditApplicationEvent(
+            principal,
+            type,
+            "message=" + jsonMessage
+        );
     }
 
     public static AuditApplicationEvent createAuditEvent(String entityName, String entityId, Action action) {
-        switch (action) {
-            case POST:
-                return new AuditApplicationEvent(
-                    SecurityUtils.getCurrentUserLogin().orElse("/"),
-                    "performance",
-                    "message=" + HeaderUtil.createEntityCreationAlert(entityName, entityId)
-                );
-            case PUT:
-                return new AuditApplicationEvent(
-                    SecurityUtils.getCurrentUserLogin().orElse("/"),
-                    "performance",
-                    "message=" + HeaderUtil.createEntityUpdateAlert(entityName, entityId)
-                );
-            case DELETE:
-                return new AuditApplicationEvent(
-                    SecurityUtils.getCurrentUserLogin().orElse("/"),
-                    "performance",
-                    "message=" + HeaderUtil.createEntityDeletionAlert(entityName, entityId)
-                );
+        AuditMessage auditMessage = createAuditMessage(entityName, entityId, action);
+        String jsonMessage = "";
+        try {
+            jsonMessage = objectMapper.writeValueAsString(auditMessage);
+        } catch (JsonProcessingException e) {
+            // catch various errors
+            e.printStackTrace();
         }
-        return null;
+
+        return new AuditApplicationEvent(
+            SecurityUtils.getCurrentUserLogin().orElse("/"),
+            "performance",
+            "message=" + jsonMessage
+        );
     }
 }
