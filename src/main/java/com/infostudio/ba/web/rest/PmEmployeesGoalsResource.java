@@ -193,6 +193,14 @@ public class PmEmployeesGoalsResource {
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(pmEmployeesGoalsDTO));
     }
 
+    @GetMapping("/pm-employees-goals/employee/{employeeId}")
+    @Timed
+    public ResponseEntity<List<PmEmployeesGoalsDTO>> getPmEmployeeGoalsByEmployeeId(@PathVariable Long employeeId) {
+        log.debug("REST request to get PmEmployeesGoals : {}", employeeId);
+        List<PmEmployeesGoals> pmEmployeesGoals = pmEmployeesGoalsRepository.findByIdEmployeeResponsible(employeeId);
+        List<PmEmployeesGoalsDTO> pmEmployeesGoalsDTO = pmEmployeesGoalsMapper.toDto(pmEmployeesGoals);
+        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(pmEmployeesGoalsDTO));
+    }
     /**
      * DELETE  /pm-employees-goals/:id : delete the "id" pmEmployeesGoals.
      *

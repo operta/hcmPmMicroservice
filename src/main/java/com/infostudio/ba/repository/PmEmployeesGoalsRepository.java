@@ -15,4 +15,5 @@ import java.util.List;
 @Repository
 public interface PmEmployeesGoalsRepository extends JpaRepository<PmEmployeesGoals, Long> {
     List<PmEmployeesGoals> findByIdGoalId(Long id);
+    List<PmEmployeesGoals> findByIdEmployeeResponsible(Long id);
 }
