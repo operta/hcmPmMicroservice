@@ -16,6 +16,7 @@ public interface PmEmployeesGoalsMapper extends EntityMapper<PmEmployeesGoalsDTO
     @Mapping(source = "idGoalState.id", target = "idGoalStateId")
     @Mapping(source = "idGoalState.name", target = "idGoalStateName")
     @Mapping(source = "idGoal.id", target = "idGoalId")
+    @Mapping(source = "idGoal.name", target = "idGoalName")
     PmEmployeesGoalsDTO toDto(PmEmployeesGoals pmEmployeesGoals);
 
     @Mapping(source = "idUnitId", target = "idUnit")

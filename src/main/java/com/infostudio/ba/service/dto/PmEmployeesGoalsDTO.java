@@ -58,6 +58,8 @@ public class PmEmployeesGoalsDTO implements Serializable {
     @NotNull
     private Long idGoalId;
 
+    private String idGoalName;
+
     private String createdBy;
 
     private Instant createdAt;
@@ -65,6 +67,14 @@ public class PmEmployeesGoalsDTO implements Serializable {
     private String updatedBy;
 
     private Instant updatedAt;
+
+    public String getIdGoalName() {
+        return idGoalName;
+    }
+
+    public void setIdGoalName(String idGoalName) {
+        this.idGoalName = idGoalName;
+    }
 
     public String getIdUnitName() {
         return idUnitName;
