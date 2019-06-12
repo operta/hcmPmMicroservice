@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import org.springframework.data.jpa.repository.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -16,4 +17,6 @@ import java.util.List;
 @Repository
 public interface PmCorrectiveMeasuresRepository extends JpaRepository<PmCorrectiveMeasures, Long> {
     List<PmCorrectiveMeasures> findAllByIdGoalEvaluationId(Long id);
+
+	List<PmCorrectiveMeasures> findAllByEndDateBeforeAndIdCmStateIdNot(LocalDate date, Long stateId);
 }
