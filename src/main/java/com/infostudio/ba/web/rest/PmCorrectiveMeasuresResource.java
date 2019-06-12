@@ -26,6 +26,7 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -123,9 +124,14 @@ public class PmCorrectiveMeasuresResource {
      */
     @GetMapping("/pm-corrective-measures")
     @Timed
-    public ResponseEntity<List<PmCorrectiveMeasuresDTO>> getAllPmCorrectiveMeasures(Pageable pageable) {
+    public ResponseEntity<List<PmCorrectiveMeasuresDTO>> getAllPmCorrectiveMeasures(Pageable pageable,
+																					@RequestParam(name = "employee-id", required = false) Long employeeId,
+																					@RequestParam(name = "end-date", required = false) LocalDate endDate,
+																					@RequestParam(name = "start-date", required = false) LocalDate startDate,
+																					@RequestParam(name = "state-id", required = false) Long stateId,
+																					@RequestParam(name = "type-id", required = false) Long typeId) {
         log.debug("REST request to get a page of PmCorrectiveMeasures");
-        Page<PmCorrectiveMeasures> page = pmCorrectiveMeasuresRepository.findAll(pageable);
+        Page<PmCorrectiveMeasures> page = pmCorrectiveMeasuresRepository.searchCorrectiveMeasure(pageable, employeeId, endDate, startDate, stateId, typeId);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/pm-corrective-measures");
         return new ResponseEntity<>(pmCorrectiveMeasuresMapper.toDto(page.getContent()), headers, HttpStatus.OK);
     }

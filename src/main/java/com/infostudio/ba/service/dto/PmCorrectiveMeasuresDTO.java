@@ -1,6 +1,8 @@
 package com.infostudio.ba.service.dto;
 
 
+import com.infostudio.ba.domain.PmEmployeesGoals;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import javax.validation.constraints.*;
@@ -31,9 +33,17 @@ public class PmCorrectiveMeasuresDTO implements Serializable {
 
     private Long idCmStateId;
 
+    private String idCmStateName;
+
     private Long idCorrectiveMeasureTypeId;
 
+    private String idCorrectiveMeasureTypeName;
+
     private Long idGoalEvaluationId;
+
+    private Long idEmployeeGoalId;
+
+    private Long idEmployeeId;
 
     private String createdBy;
 
@@ -42,6 +52,38 @@ public class PmCorrectiveMeasuresDTO implements Serializable {
     private String updatedBy;
 
     private Instant updatedAt;
+
+    public Long getIdEmployeeId() {
+        return idEmployeeId;
+    }
+
+    public void setIdEmployeeId(Long idEmployeeId) {
+        this.idEmployeeId = idEmployeeId;
+    }
+
+    public Long getIdEmployeeGoalId() {
+        return idEmployeeGoalId;
+    }
+
+    public void setIdEmployeeGoalId(Long idEmployeeGoalId) {
+        this.idEmployeeGoalId = idEmployeeGoalId;
+    }
+
+    public String getIdCmStateName() {
+        return idCmStateName;
+    }
+
+    public void setIdCmStateName(String idCmStateName) {
+        this.idCmStateName = idCmStateName;
+    }
+
+    public String getIdCorrectiveMeasureTypeName() {
+        return idCorrectiveMeasureTypeName;
+    }
+
+    public void setIdCorrectiveMeasureTypeName(String idCorrectiveMeasureTypeName) {
+        this.idCorrectiveMeasureTypeName = idCorrectiveMeasureTypeName;
+    }
 
     public String getCreatedBy() {
         return createdBy;
