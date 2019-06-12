@@ -131,8 +131,7 @@ public class PmCorrectiveMeasuresResource {
 																					@RequestParam(name = "state-id", required = false) Long stateId,
 																					@RequestParam(name = "type-id", required = false) Long typeId) {
         log.debug("REST request to get a page of PmCorrectiveMeasures");
-        Page<PmCorrectiveMeasures> page = null;
-        page = pmCorrectiveMeasuresRepository.searchCorrectiveMeasure(pageable, employeeId, endDate, startDate, stateId, typeId);
+        Page<PmCorrectiveMeasures> page = pmCorrectiveMeasuresRepository.searchCorrectiveMeasure(pageable, employeeId, endDate, startDate, stateId, typeId);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/pm-corrective-measures");
         return new ResponseEntity<>(pmCorrectiveMeasuresMapper.toDto(page.getContent()), headers, HttpStatus.OK);
     }
