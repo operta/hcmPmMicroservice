@@ -1,6 +1,7 @@
 package com.infostudio.ba.component;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -33,6 +34,7 @@ public class CorrectiveMeasureCronJob {
 
 	private final static String CORRECTIVE_MEASURE_EXPIRED_KEY = "correctiveMeasureExpiredState";
 
+	private final static String WAITING_CORRECTIVE_MEASURE_STATE_KEY = "waitingCorrectiveMeasureToFinishState";
 
 	public CorrectiveMeasureCronJob(PmCorrectiveMeasuresRepository pmCorrectiveMeasuresRepository,
 								    PmCorMeasureStatesRepository pmCorMeasureStatesRepository) {
@@ -43,14 +45,15 @@ public class CorrectiveMeasureCronJob {
 	@Scheduled(fixedRate = CORRECTIVE_MEASURE_EXPIRED_TIME)
 	public void correctiveMeasureExpired() {
 		logger.debug("CORRECTIVE MEASURE STATUS CHANGE CRON JOB STARTED");
-		ApConstants expiredStateConstant = getExpiredStateConstant();
+		ApConstants expiredStateConstant = getStateConstant(CORRECTIVE_MEASURE_EXPIRED_KEY);
+
 		logger.debug("EXPIRED STATE CONSTANT: {}", expiredStateConstant);
 		if (expiredStateConstant == null) {
 			return;
 		}
 		try {
 			Long correctiveMeasureExpiredStateId = Long.valueOf(expiredStateConstant.getValue());
-			List<PmCorrectiveMeasures> correctiveMeasuresThatExpired = getCorrectiveMeasuresThatExpired(correctiveMeasureExpiredStateId);
+			List<PmCorrectiveMeasures> correctiveMeasuresThatExpired = getCorrectiveMeasuresThatExpired();
 			if (correctiveMeasuresThatExpired.isEmpty()) {
 				return ;
 			}
@@ -69,8 +72,8 @@ public class CorrectiveMeasureCronJob {
 		}
 	}
 
-	private ApConstants getExpiredStateConstant() {
-		String query = "SELECT a.key, a.value FROM ap_constants a WHERE a.key='" + CORRECTIVE_MEASURE_EXPIRED_KEY + "'";
+	private ApConstants getStateConstant(String stateKey) {
+		String query = "SELECT a.key, a.value FROM ap_constants a WHERE a.key='" + stateKey + "'";
 		List<Object[]> rawRecords = entityManager.createNativeQuery(query).getResultList();
 		ApConstants apConstants = null;
 		for (Object[] record : rawRecords){
@@ -83,8 +86,19 @@ public class CorrectiveMeasureCronJob {
 		return apConstants;
 	}
 
-	private List<PmCorrectiveMeasures> getCorrectiveMeasuresThatExpired(Long correctiveMeasureExpiredStateId) {
-		return pmCorrectiveMeasuresRepository.findAllByEndDateBeforeAndIdCmStateIdNot(LocalDate.now(), correctiveMeasureExpiredStateId);
+	private List<PmCorrectiveMeasures> getCorrectiveMeasuresThatExpired() {
+		ApConstants waitingCorrectiveMeasure = getStateConstant(WAITING_CORRECTIVE_MEASURE_STATE_KEY);
+		logger.debug("WAITING CORRECTIVE MEASURE CONSTANT: {}", waitingCorrectiveMeasure);
+		if (waitingCorrectiveMeasure == null) {
+			return new ArrayList<>();
+		}
+		Long waitingCorrectiveMeasureId = null;
+		try {
+			waitingCorrectiveMeasureId = Long.valueOf(waitingCorrectiveMeasure.getValue());
+		} catch (NumberFormatException e) {
+			logger.error("The value: {} couldn't be parsed to a long", waitingCorrectiveMeasure.getValue());
+			return new ArrayList<>();
+		}
+		return pmCorrectiveMeasuresRepository.findAllByEndDateBeforeAndIdCmStateId(LocalDate.now(), waitingCorrectiveMeasureId);
 	}
-
 }

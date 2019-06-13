@@ -21,7 +21,7 @@ import java.util.List;
 public interface PmCorrectiveMeasuresRepository extends JpaRepository<PmCorrectiveMeasures, Long> {
     List<PmCorrectiveMeasures> findAllByIdGoalEvaluationId(Long id);
 
-	List<PmCorrectiveMeasures> findAllByEndDateBeforeAndIdCmStateIdNot(LocalDate date, Long stateId);
+	List<PmCorrectiveMeasures> findAllByEndDateBeforeAndIdCmStateId(LocalDate date, Long stateId);
 
 
 	@Query("SELECT pm FROM PmCorrectiveMeasures pm WHERE (?1 IS NULL OR pm.idGoalEvaluation.idEmployeeGoal.idEmployeeResponsible = ?1) AND "
