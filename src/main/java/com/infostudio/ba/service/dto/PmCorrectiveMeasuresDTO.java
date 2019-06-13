@@ -24,7 +24,6 @@ public class PmCorrectiveMeasuresDTO implements Serializable {
     @NotNull
     private LocalDate endDate;
 
-    @NotNull
     private Double measureSuccessRate;
 
     private String description;

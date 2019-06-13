@@ -35,8 +35,7 @@ public class PmCorrectiveMeasures extends AbstractAuditingEntity implements Seri
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
-    @NotNull
-    @Column(name = "measure_success_rate", nullable = false)
+    @Column(name = "measure_success_rate")
     private Double measureSuccessRate;
 
     @Column(name = "description")
