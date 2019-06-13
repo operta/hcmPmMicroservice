@@ -31,7 +31,6 @@ public class PmGoalsEvaluationsDTO implements Serializable {
     @NotNull
     private LocalDate evaluationPeriodTo;
 
-    @NotNull
     private Long achievedValue;
 
     @NotNull

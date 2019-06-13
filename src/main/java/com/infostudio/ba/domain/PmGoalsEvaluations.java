@@ -47,8 +47,7 @@ public class PmGoalsEvaluations extends AbstractAuditingEntity implements Serial
     @Column(name = "evaluation_period_to", nullable = false)
     private LocalDate evaluationPeriodTo;
 
-    @NotNull
-    @Column(name = "achieved_value", nullable = false)
+    @Column(name = "achieved_value")
     private Long achievedValue;
 
     @NotNull
