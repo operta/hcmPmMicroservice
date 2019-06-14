@@ -26,6 +26,7 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -122,9 +123,13 @@ public class PmGoalsEvaluationsResource {
      */
     @GetMapping("/pm-goals-evaluations")
     @Timed
-    public ResponseEntity<List<PmGoalsEvaluationsDTO>> getAllPmGoalsEvaluations(Pageable pageable) {
+    public ResponseEntity<List<PmGoalsEvaluationsDTO>> getAllPmGoalsEvaluations(Pageable pageable,
+																				@RequestParam(name = "employee-id", required = false) Long employeeId,
+																				@RequestParam(name = "state-id", required = false) Long stateId,
+																				@RequestParam(name = "evaluation-from", required = false) LocalDate evaluationFrom,
+																				@RequestParam(name = "evaluation-to", required = false)LocalDate evaluationTo) {
         log.debug("REST request to get a page of PmGoalsEvaluations");
-        Page<PmGoalsEvaluations> page = pmGoalsEvaluationsRepository.findAll(pageable);
+        Page<PmGoalsEvaluations> page = pmGoalsEvaluationsRepository.searchGoalEvaluations(pageable, employeeId, stateId, evaluationFrom, evaluationTo);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/pm-goals-evaluations");
         return new ResponseEntity<>(pmGoalsEvaluationsMapper.toDto(page.getContent()), headers, HttpStatus.OK);
     }
