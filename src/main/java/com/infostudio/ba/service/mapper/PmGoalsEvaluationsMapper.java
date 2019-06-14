@@ -13,7 +13,8 @@ public interface PmGoalsEvaluationsMapper extends EntityMapper<PmGoalsEvaluation
 
     @Mapping(source = "idEmployeeGoal.id", target = "idEmployeeGoalId")
     @Mapping(source = "idEvaluationState.id", target = "idEvaluationStateId")
-    @Mapping(source = "idEvaluationState.name", target = "idEvaluationStateName")
+    @Mapping(source = "idEvaluationState.name", target = "evaluationStateName")
+    @Mapping(source = "idEmployeeGoal.idEmployeeResponsible", target = "idEmployeeId")
     PmGoalsEvaluationsDTO toDto(PmGoalsEvaluations pmGoalsEvaluations);
 
     @Mapping(source = "idEmployeeGoalId", target = "idEmployeeGoal")
