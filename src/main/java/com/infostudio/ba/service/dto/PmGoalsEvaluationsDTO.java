@@ -31,7 +31,6 @@ public class PmGoalsEvaluationsDTO implements Serializable {
     @NotNull
     private LocalDate evaluationPeriodTo;
 
-    @NotNull
     private Long achievedValue;
 
     @NotNull
@@ -41,6 +40,8 @@ public class PmGoalsEvaluationsDTO implements Serializable {
 
     private Long idEvaluationStateId;
 
+    private String idEvaluationStateName;
+
     private String createdBy;
 
     private Instant createdAt;
@@ -48,6 +49,14 @@ public class PmGoalsEvaluationsDTO implements Serializable {
     private String updatedBy;
 
     private Instant updatedAt;
+
+    public String getIdEvaluationStateName() {
+        return idEvaluationStateName;
+    }
+
+    public void setIdEvaluationStateName(String idEvaluationStateName) {
+        this.idEvaluationStateName = idEvaluationStateName;
+    }
 
     public String getCreatedBy() {
         return createdBy;
