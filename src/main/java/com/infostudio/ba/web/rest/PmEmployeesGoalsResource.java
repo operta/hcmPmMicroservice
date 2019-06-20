@@ -162,9 +162,13 @@ public class PmEmployeesGoalsResource {
      */
     @GetMapping("/pm-employees-goals")
     @Timed
-    public ResponseEntity<List<PmEmployeesGoalsDTO>> getAllPmEmployeesGoals(Pageable pageable) {
+    public ResponseEntity<List<PmEmployeesGoalsDTO>> getAllPmEmployeesGoals(Pageable pageable,
+                                                                            @RequestParam(name = "employee-id", required = false) Long employeeId,
+                                                                            @RequestParam(name = "goal-id", required = false) Long goalId,
+                                                                            @RequestParam(name = "date-from", required = false) LocalDate dateFrom,
+                                                                            @RequestParam(name = "date-to", required = false) LocalDate dateTo) {
         log.debug("REST request to get a page of PmEmployeesGoals");
-        Page<PmEmployeesGoals> page = pmEmployeesGoalsRepository.findAll(pageable);
+        Page<PmEmployeesGoals> page = pmEmployeesGoalsRepository.searchEmployeesGoals(pageable, employeeId, goalId, dateFrom, dateTo);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/pm-employees-goals");
         return new ResponseEntity<>(pmEmployeesGoalsMapper.toDto(page.getContent()), headers, HttpStatus.OK);
     }

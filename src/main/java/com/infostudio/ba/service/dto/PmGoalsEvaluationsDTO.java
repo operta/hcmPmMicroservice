@@ -40,7 +40,7 @@ public class PmGoalsEvaluationsDTO implements Serializable {
 
     private Long idEvaluationStateId;
 
-    private String evaluationStateName;
+    private String idEvaluationStateName;
 
     private Long idEmployeeId;
 
@@ -52,12 +52,12 @@ public class PmGoalsEvaluationsDTO implements Serializable {
 
     private Instant updatedAt;
 
-    public String getEvaluationStateName() {
-        return evaluationStateName;
+    public String getIdEvaluationStateName() {
+        return idEvaluationStateName;
     }
 
-    public void setEvaluationStateName(String evaluationStateName) {
-        this.evaluationStateName = evaluationStateName;
+    public void setIdEvaluationStateName(String idEvaluationStateName) {
+        this.idEvaluationStateName = idEvaluationStateName;
     }
 
     public Long getIdEmployeeId() {
