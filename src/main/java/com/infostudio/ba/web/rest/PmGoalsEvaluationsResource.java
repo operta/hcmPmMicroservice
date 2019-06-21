@@ -11,6 +11,7 @@ import com.infostudio.ba.domain.PmGoalsEvaluations;
 import com.infostudio.ba.repository.PmEmployeesGoalsRepository;
 import com.infostudio.ba.repository.PmGoalStatesRepository;
 import com.infostudio.ba.repository.PmGoalsEvaluationsRepository;
+import com.infostudio.ba.service.ConstantService;
 import com.infostudio.ba.service.helper.model.ApConstants;
 import com.infostudio.ba.service.helper.model.EmEmployees;
 import com.infostudio.ba.service.helper.model.UserNotifications;
@@ -78,19 +79,23 @@ public class PmGoalsEvaluationsResource {
 
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
+	private final ConstantService constantService;
+
 	public PmGoalsEvaluationsResource(PmGoalsEvaluationsRepository pmGoalsEvaluationsRepository,
 			PmGoalsEvaluationsMapper pmGoalsEvaluationsMapper,
 			ApplicationEventPublisher applicationEventPublisher,
 			CoreMicroserviceProxy coreMicroserviceProxy,
 			EmployeeMicroserviceProxy employeeMicroserviceProxy,
 			PmEmployeesGoalsRepository pmEmployeesGoalsRepository,
-			PmGoalStatesRepository pmGoalStatesRepository) {
+			PmGoalStatesRepository pmGoalStatesRepository,
+			ConstantService constantService) {
 		this.pmGoalsEvaluationsRepository = pmGoalsEvaluationsRepository;
 		this.pmGoalsEvaluationsMapper = pmGoalsEvaluationsMapper;
 		this.applicationEventPublisher = applicationEventPublisher;
 		this.coreMicroserviceProxy = coreMicroserviceProxy;
 		this.pmEmployeesGoalsRepository = pmEmployeesGoalsRepository;
 		this.employeeMicroserviceProxy = employeeMicroserviceProxy;
+		this.constantService = constantService;
 		this.pmGoalStatesRepository = pmGoalStatesRepository;
 	}
 
@@ -123,26 +128,6 @@ public class PmGoalsEvaluationsResource {
 				.body(result);
 	}
 
-	private Long convertStringToLong(String value) {
-		Long num = null;
-		try {
-			num = Long.valueOf(value);
-		} catch (NumberFormatException e) {
-			log.error(e.getMessage());
-			throw new BadRequestAlertException("An error happened while converting string to long",
-				ENTITY_NAME, "stringTooLongConversionError");
-		}
-		return num;
-	}
-
-	private Long getApConstantValueByName(String name, String token) {
-	 	ApConstants constant  = coreMicroserviceProxy.getApConstantByName(name, token).getBody();
-		if (constant == null) {
-			throw new BadRequestAlertException(String.format("Constant with key '%s' does not exist", EVALUATION_STATE_ID_KEY),
-					ENTITY_NAME, "constantDoesNotExist");
-		}
-		return convertStringToLong(constant.getValue());
-	}
 
 	/**
 	 * PUT  /pm-goals-evaluations : Updates an existing pmGoalsEvaluations.
@@ -162,8 +147,8 @@ public class PmGoalsEvaluationsResource {
 			return createPmGoalsEvaluations(pmGoalsEvaluationsDTO);
 		}
 		PmGoalsEvaluations pmGoalsEvaluations = pmGoalsEvaluationsMapper.toEntity(pmGoalsEvaluationsDTO);
-		Long evaluationId = getApConstantValueByName(EVALUATION_STATE_ID_KEY, token);
-		Long evaluationApprovedId = getApConstantValueByName(EVALUATION_STATE_APPROVED_ID_KEY, token);
+		Long evaluationId = constantService.getApConstantValueByName(EVALUATION_STATE_ID_KEY, token, ENTITY_NAME);
+		Long evaluationApprovedId = constantService.getApConstantValueByName(EVALUATION_STATE_APPROVED_ID_KEY, token, ENTITY_NAME);
 
 		if (pmGoalsEvaluations.getIdEvaluationState() != null) {
 			if (pmGoalsEvaluations.getIdEvaluationState().getId().equals(evaluationId)) {
@@ -198,7 +183,7 @@ public class PmGoalsEvaluationsResource {
 			throw new BadRequestAlertException("Employee goal with id " + pmGoalsEvaluations.getIdEmployeeGoal().getId() + " does not exist.",
 					ENTITY_NAME, "employeeGoalDoesNotExist");
 		}
-		Long employeeGoalFinishedStateId = getApConstantValueByName(EMPLOYEE_GOAL_EVALUATION_FINISHED_ID_KEY, token);
+		Long employeeGoalFinishedStateId = constantService.getApConstantValueByName(EMPLOYEE_GOAL_EVALUATION_FINISHED_ID_KEY, token, ENTITY_NAME);
 		log.debug("EMPLOYEE GOAL FINISHED STATE ID: {}", employeeGoalFinishedStateId);
 		PmGoalStates goalState = pmGoalStatesRepository.findOne(employeeGoalFinishedStateId);
 		if (goalState == null) {
@@ -212,7 +197,7 @@ public class PmGoalsEvaluationsResource {
 	}
 
 	private void sendNotificationForGradedEvaluation(String token, PmGoalsEvaluations pmGoalsEvaluations) {
-		Long notificationTemplateId = getApConstantValueByName(NOTIFICATION_TEMPLATE_APPROVE_EVALUATION_KEY, token);
+		Long notificationTemplateId = constantService.getApConstantValueByName(NOTIFICATION_TEMPLATE_APPROVE_EVALUATION_KEY, token, ENTITY_NAME);
 		UserNotifications notification = new UserNotifications();
 		if (pmGoalsEvaluations.getIdEmployeeGoal() == null) {
 			return ;

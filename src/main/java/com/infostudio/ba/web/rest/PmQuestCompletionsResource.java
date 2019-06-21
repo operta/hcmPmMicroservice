@@ -2,13 +2,16 @@ package com.infostudio.ba.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import com.infostudio.ba.domain.Action;
+import com.infostudio.ba.domain.PmEvaluationStates;
 import com.infostudio.ba.domain.PmGoalEvalQstCompl;
 import com.infostudio.ba.domain.PmGoalsEvaluations;
 import com.infostudio.ba.domain.PmQuestCompletions;
 
+import com.infostudio.ba.repository.PmEvaluationStatesRepository;
 import com.infostudio.ba.repository.PmGoalEvalQstComplRepository;
 import com.infostudio.ba.repository.PmGoalsEvaluationsRepository;
 import com.infostudio.ba.repository.PmQuestCompletionsRepository;
+import com.infostudio.ba.service.ConstantService;
 import com.infostudio.ba.service.mapper.PmGoalEvalQstComplMapper;
 import com.infostudio.ba.web.rest.errors.BadRequestAlertException;
 import com.infostudio.ba.web.rest.util.AuditUtil;
@@ -19,6 +22,8 @@ import com.infostudio.ba.service.mapper.PmQuestCompletionsMapper;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.scanner.Constant;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +38,8 @@ import java.net.URISyntaxException;
 
 import java.util.List;
 import java.util.Optional;
+
+import static com.infostudio.ba.config.Constants.AUTHORIZATION_HEADER;
 
 /**
  * REST controller for managing PmQuestCompletions.
@@ -55,16 +62,29 @@ public class PmQuestCompletionsResource {
 
     private final ApplicationEventPublisher applicationEventPublisher;
 
+    private final PmEvaluationStatesRepository pmEvaluationStatesRepository;
+
+    private final ConstantService constantService;
+
+    private final String QUESTIONNAIRE_ANSWERED_STATE_ID_KEY = "questionnaireAnsweredState";
+
+    private final String EVALUATION_QUESTIONNAIRE_COMPLETED_STATE_ID_KEY = "evaluationQuestionnaireCompletedState";
+
+
     public PmQuestCompletionsResource(PmQuestCompletionsRepository pmQuestCompletionsRepository,
                                       PmQuestCompletionsMapper pmQuestCompletionsMapper,
                                       PmGoalEvalQstComplRepository pmGoalEvalQstComplRepository,
                                       PmGoalsEvaluationsRepository pmGoalsEvaluationsRepository,
-                                      ApplicationEventPublisher applicationEventPublisher) {
+                                      PmEvaluationStatesRepository pmEvaluationStatesRepository,
+                                      ApplicationEventPublisher applicationEventPublisher,
+									  ConstantService constantService) {
         this.pmQuestCompletionsRepository = pmQuestCompletionsRepository;
         this.pmQuestCompletionsMapper = pmQuestCompletionsMapper;
         this.pmGoalEvalQstComplRepository = pmGoalEvalQstComplRepository;
         this.pmGoalsEvaluationsRepository = pmGoalsEvaluationsRepository;
+        this.pmEvaluationStatesRepository = pmEvaluationStatesRepository;
         this.applicationEventPublisher = applicationEventPublisher;
+        this.constantService = constantService;
 
     }
 
@@ -137,11 +157,26 @@ public class PmQuestCompletionsResource {
      */
     @PutMapping("/pm-quest-completions")
     @Timed
-    public ResponseEntity<PmQuestCompletionsDTO> updatePmQuestCompletions(@Valid @RequestBody PmQuestCompletionsDTO pmQuestCompletionsDTO) throws URISyntaxException {
+    public ResponseEntity<PmQuestCompletionsDTO> updatePmQuestCompletions(@Valid @RequestBody PmQuestCompletionsDTO pmQuestCompletionsDTO,
+																		  @RequestHeader(AUTHORIZATION_HEADER) String token) throws URISyntaxException {
         log.debug("REST request to update PmQuestCompletions : {}", pmQuestCompletionsDTO);
         if (pmQuestCompletionsDTO.getId() == null) {
             return createPmQuestCompletions(pmQuestCompletionsDTO);
         }
+		Long questionnaireAnsweredStateId = constantService.getApConstantValueByName(QUESTIONNAIRE_ANSWERED_STATE_ID_KEY, token, ENTITY_NAME);
+        if (questionnaireAnsweredStateId.equals(pmQuestCompletionsDTO.getIdQuestCompletionStateId())) {
+        	List<PmGoalEvalQstCompl> goalEvalQstCompl = pmGoalEvalQstComplRepository.findByIdQuestionnaireCompletionId(pmQuestCompletionsDTO.getId());
+			Long questEvalCompletedState = constantService.getApConstantValueByName(EVALUATION_QUESTIONNAIRE_COMPLETED_STATE_ID_KEY, token, ENTITY_NAME);
+			PmEvaluationStates state = pmEvaluationStatesRepository.findOne(questEvalCompletedState);
+        	log.debug("QUEST COMPLETED EVALUATION STATE: {}", state);
+			goalEvalQstCompl.forEach((g) -> {
+        		PmGoalsEvaluations goalEvaluation = g.getIdGoalEvaluation();
+        		goalEvaluation.setIdEvaluationState(state);
+        		log.debug("Saving PmGoalsEvaluations with QuestCompleted state: {}", goalEvaluation);
+        		pmGoalsEvaluationsRepository.save(goalEvaluation);
+			});
+		}
+
         PmQuestCompletions pmQuestCompletions = pmQuestCompletionsMapper.toEntity(pmQuestCompletionsDTO);
         pmQuestCompletions = pmQuestCompletionsRepository.save(pmQuestCompletions);
         PmQuestCompletionsDTO result = pmQuestCompletionsMapper.toDto(pmQuestCompletions);
