@@ -5,9 +5,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.infostudio.ba.domain.Action;
 import com.infostudio.ba.domain.PmEmployeesGoals;
+import com.infostudio.ba.domain.PmGoalStates;
 import com.infostudio.ba.domain.PmGoalsEvaluations;
 
 import com.infostudio.ba.repository.PmEmployeesGoalsRepository;
+import com.infostudio.ba.repository.PmGoalStatesRepository;
 import com.infostudio.ba.repository.PmGoalsEvaluationsRepository;
 import com.infostudio.ba.service.helper.model.ApConstants;
 import com.infostudio.ba.service.helper.model.EmEmployees;
@@ -64,9 +66,15 @@ public class PmGoalsEvaluationsResource {
 
 	private final String EVALUATION_STATE_ID_KEY = "evaluationGradedState";
 
+	private final String EVALUATION_STATE_APPROVED_ID_KEY = "evaluationApprovedState";
+
 	private final String NOTIFICATION_TEMPLATE_APPROVE_EVALUATION_KEY = "notificationApproveEvaluation";
 
+	private final String EMPLOYEE_GOAL_EVALUATION_FINISHED_ID_KEY = "employeeGoalEvaluationFinished";
+
 	private final PmEmployeesGoalsRepository pmEmployeesGoalsRepository;
+
+	private final PmGoalStatesRepository pmGoalStatesRepository;
 
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -75,13 +83,15 @@ public class PmGoalsEvaluationsResource {
 			ApplicationEventPublisher applicationEventPublisher,
 			CoreMicroserviceProxy coreMicroserviceProxy,
 			EmployeeMicroserviceProxy employeeMicroserviceProxy,
-			PmEmployeesGoalsRepository pmEmployeesGoalsRepository) {
+			PmEmployeesGoalsRepository pmEmployeesGoalsRepository,
+			PmGoalStatesRepository pmGoalStatesRepository) {
 		this.pmGoalsEvaluationsRepository = pmGoalsEvaluationsRepository;
 		this.pmGoalsEvaluationsMapper = pmGoalsEvaluationsMapper;
 		this.applicationEventPublisher = applicationEventPublisher;
 		this.coreMicroserviceProxy = coreMicroserviceProxy;
 		this.pmEmployeesGoalsRepository = pmEmployeesGoalsRepository;
 		this.employeeMicroserviceProxy = employeeMicroserviceProxy;
+		this.pmGoalStatesRepository = pmGoalStatesRepository;
 	}
 
 	/**
@@ -153,13 +163,18 @@ public class PmGoalsEvaluationsResource {
 		}
 		PmGoalsEvaluations pmGoalsEvaluations = pmGoalsEvaluationsMapper.toEntity(pmGoalsEvaluationsDTO);
 		Long evaluationId = getApConstantValueByName(EVALUATION_STATE_ID_KEY, token);
+		Long evaluationApprovedId = getApConstantValueByName(EVALUATION_STATE_APPROVED_ID_KEY, token);
 
-		pmGoalsEvaluations = pmGoalsEvaluationsRepository.save(pmGoalsEvaluations);
-
-		if (pmGoalsEvaluations.getIdEvaluationState() != null && pmGoalsEvaluations.getIdEvaluationState().getId().equals(evaluationId)) {
-			sendNotificationForGradedEvaluation(token, pmGoalsEvaluations);
+		if (pmGoalsEvaluations.getIdEvaluationState() != null) {
+			if (pmGoalsEvaluations.getIdEvaluationState().getId().equals(evaluationId)) {
+				pmGoalsEvaluations = pmGoalsEvaluationsRepository.save(pmGoalsEvaluations);
+				sendNotificationForGradedEvaluation(token, pmGoalsEvaluations);
+			} else if (pmGoalsEvaluations.getIdEvaluationState().getId().equals(evaluationApprovedId)) {
+				log.debug("EVALUATION APPROVED");
+				setEvaluationOfEmployeeGoalToFinished(pmGoalsEvaluations, token);
+				pmGoalsEvaluations = pmGoalsEvaluationsRepository.save(pmGoalsEvaluations);
+			}
 		}
-
 		PmGoalsEvaluationsDTO result = pmGoalsEvaluationsMapper.toDto(pmGoalsEvaluations);
 		applicationEventPublisher.publishEvent(
 				AuditUtil.createAuditEvent(
@@ -171,6 +186,29 @@ public class PmGoalsEvaluationsResource {
 		return ResponseEntity.ok()
 				.headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, pmGoalsEvaluationsDTO.getId().toString()))
 				.body(result);
+	}
+
+	private void setEvaluationOfEmployeeGoalToFinished(PmGoalsEvaluations pmGoalsEvaluations, String token) {
+		if (pmGoalsEvaluations.getIdEmployeeGoal() == null) {
+			throw new BadRequestAlertException("You need to provide the id employee goal",
+					ENTITY_NAME, "idEmployeeGoalNull");
+		}
+		PmEmployeesGoals employeeGoal = pmEmployeesGoalsRepository.findOne(pmGoalsEvaluations.getIdEmployeeGoal().getId());
+		if (employeeGoal == null) {
+			throw new BadRequestAlertException("Employee goal with id " + pmGoalsEvaluations.getIdEmployeeGoal().getId() + " does not exist.",
+					ENTITY_NAME, "employeeGoalDoesNotExist");
+		}
+		Long employeeGoalFinishedStateId = getApConstantValueByName(EMPLOYEE_GOAL_EVALUATION_FINISHED_ID_KEY, token);
+		log.debug("EMPLOYEE GOAL FINISHED STATE ID: {}", employeeGoalFinishedStateId);
+		PmGoalStates goalState = pmGoalStatesRepository.findOne(employeeGoalFinishedStateId);
+		if (goalState == null) {
+			throw new BadRequestAlertException("Goal state with id " + employeeGoalFinishedStateId + " does not exist.",
+					ENTITY_NAME, "goalStateDoesNotExist");
+		}
+		employeeGoal.setIdGoalState(goalState);
+		employeeGoal = pmEmployeesGoalsRepository.save(employeeGoal);
+		pmGoalsEvaluations.setAchievedValue(employeeGoal.getCurrentValue());
+		log.debug("ACHIEVED VALUE: {}", pmGoalsEvaluations.getAchievedValue());
 	}
 
 	private void sendNotificationForGradedEvaluation(String token, PmGoalsEvaluations pmGoalsEvaluations) {
